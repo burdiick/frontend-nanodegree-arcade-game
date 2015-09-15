@@ -1,13 +1,14 @@
 // Enemies our player must avoid
-var Enemy = function() {
+var Enemy = function(x, y, move) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
-    this.x = 100;
-    this.y = 75 * 3;
+    this.x = 100 * x;
+    this.y = 82 * y - 10;
+    this.movePattern = move;
 };
 
 // Update the enemy's position, required method for game
@@ -26,10 +27,10 @@ Enemy.prototype.render = function() {
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
-var Player = function() {
+var Player = function(x, y) {
     this.sprite = 'images/char-boy.png';
-    this.x = this.setX(2);
-    this.y = this.setY(5) - 10;
+    this.x = this.setX(x);
+    this.y = this.setY(y) - 10;
     this.movement = {'move': ''};
 };
 
@@ -74,11 +75,23 @@ Player.prototype.handleInput = function(key) {
     this.movement = key;
 };
 
+var Level = function() {
+    this.map = [0,0,0,0,0,
+                1,1,1,1,1,
+                0,2,2,0,2,
+                0,2,2,2,2,
+                0,0,2,2,0,
+                0,0,2,2,0];
+
+    this.enemies = [new Enemy(0, 1, 0), new Enemy(4, 3, 2)];
+    this.player = new Player(2, 5);
+};
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var allEnemies = [new Enemy()];
-var player = new Player();
+//var allEnemies = [new Enemy()];
+var level = new Level();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -90,5 +103,5 @@ document.addEventListener('keyup', function(e) {
         40: 'down'
     };
     console.log(allowedKeys[e.keyCode]);
-    player.handleInput(allowedKeys[e.keyCode]);
+    level.player.handleInput(allowedKeys[e.keyCode]);
 });
