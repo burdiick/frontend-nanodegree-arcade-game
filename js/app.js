@@ -6,6 +6,8 @@ var Enemy = function() {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+    this.x = 100;
+    this.y = 75 * 3;
 };
 
 // Update the enemy's position, required method for game
@@ -24,13 +26,59 @@ Enemy.prototype.render = function() {
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
+var Player = function() {
+    this.sprite = 'images/char-boy.png';
+    this.x = this.setX(2);
+    this.y = this.setY(5) - 10;
+    this.movement = {'move': ''};
+};
 
+Player.prototype.setX = function(multiplier) {
+    return multiplier * 101;
+};
+
+Player.prototype.getX = function() {
+    return this.x / 101;
+};
+
+Player.prototype.setY = function(multiplier) {
+    return multiplier * 82;
+};
+
+Player.prototype.getY = function() {
+    return this.y / 82;
+};
+
+Player.prototype.update = function() {
+    if (this.movement === 'left' && this.getX() > 0) {
+        this.x = this.setX(this.getX() - 1);
+        console.log(this.x);
+    }else if(this.movement === 'right' && this.getX() < 4) {
+        this.x = this.setX(this.getX() + 1);
+        console.log(this.x);
+    }else if(this.movement === 'up' && this.getY() > 0) {
+        this.y = this.setY(this.getY() - 1);
+        console.log(this.y);
+    }else if(this.movement === 'down' && this.getY() < 5) {
+        this.y = this.setY(this.getY() + 1);
+        console.log(this.y);
+    }
+    this.movement = '';
+};
+
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+Player.prototype.handleInput = function(key) {
+    this.movement = key;
+};
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-
-
+var allEnemies = [new Enemy()];
+var player = new Player();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -41,6 +89,6 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-
+    console.log(allowedKeys[e.keyCode]);
     player.handleInput(allowedKeys[e.keyCode]);
 });
