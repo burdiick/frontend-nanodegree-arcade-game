@@ -1,6 +1,6 @@
 // Enemies our player must avoid
-var CANVAS_WIDTH = 505;
-var CANVAS_HEIGHT = 606;
+var CANVAS_WIDTH = 800;
+var CANVAS_HEIGHT = 600;
 
 var Enemy = function (enemy) {
   // Variables applied to each of our instances go here,
@@ -9,8 +9,8 @@ var Enemy = function (enemy) {
   // The image/sprite for our enemies, this uses
   // a helper we've provided to easily load images
   this.sprite = 'images/enemy-bug.png';
-  this.x = 100 * enemy.path[0].x;
-  this.y = 82 * enemy.path[0].y - 10;
+  this.x = 101 * enemy.path[0].x;
+  this.y = 79 * enemy.path[0].y - 25;
   this.speed = enemy.speed;
   this.path = enemy.path;
   this.currentWaypoint = enemy.path[0];
@@ -37,7 +37,7 @@ Enemy.prototype.render = function () {
 var Player = function (x, y) {
   this.sprite = 'images/char-boy.png';
   this.x = this.setX(x);
-  this.y = this.setY(y) - 10;
+  this.y = this.setY(y) - 15;
   this.movement = {
     'move': ''
   };
@@ -52,24 +52,24 @@ Player.prototype.getX = function () {
 };
 
 Player.prototype.setY = function (multiplier) {
-  return multiplier * 82;
+  return multiplier * 79;
 };
 
 Player.prototype.getY = function () {
-  return this.y / 82;
+  return this.y / 79;
 };
 
 Player.prototype.update = function () {
   if (this.movement === 'left' && this.getX() > 0) {
     this.x = this.setX(this.getX() - 1);
     console.log(this.x);
-  } else if (this.movement === 'right' && this.getX() < 5) {
+  } else if (this.movement === 'right' && this.getX() < 4) {
     this.x = this.setX(this.getX() + 1);
-    console.log(level.mapSize.x);
+    console.log(level.mapSize.rows);
   } else if (this.movement === 'up' && this.getY() > 0) {
     this.y = this.setY(this.getY() - 1);
     console.log(this.y);
-  } else if (this.movement === 'down' && this.getY() < 6) {
+  } else if (this.movement === 'down' && this.getY() + 1 < 5) {
     this.y = this.setY(this.getY() + 1);
     console.log(this.y);
   }
@@ -130,6 +130,46 @@ var levels = {
       'y': 5
     },
     'helpText': 'Navigate to the water. Watch out for bugs!'
+  }, {
+    'number': 1,          // Level number
+    'mapSize': {          // Size of map in squares
+      'rows': 6,
+      'cols': 10
+    },
+    'map': [              // Array holding map layout.
+      0, 0, 0, 0, 0,0,0,0,0,0,
+      1, 1, 1, 1, 1,0,0,0,0,0,
+      1, 2, 2, 1, 2,0,0,0,0,0,
+      1, 2, 2, 2, 2,0,0,0,0,0,
+      1, 1, 2, 2, 1,0,0,0,0,0,
+      1, 1, 2, 2, 1,0,0,0,0,0
+    ],
+    'enemies': [{         // Data to instantiate enemies
+      'type': 'red-bug',  // Enemy type
+      'speed': 0,         // Movement speed
+      'path': [{          // Array of grid locations to use as waypoints
+        'x': 0,
+        'y': 1
+      }, {
+        'x': 4,
+        'y': 1
+      }]
+    }, {
+      'type': 'red-bug',
+      'speed': 2,
+      'path': [{
+        'x': 4,
+        'y': 3
+      }, {
+        'x': 4,
+        'y': 1
+      }],
+    }],
+    'player': {           // Data to set player location for map
+      'x': 2,
+      'y': 5
+    },
+    'helpText': 'Navigate to the water. Watch out for bugs!'
   }]
 };
 
@@ -145,9 +185,19 @@ var Level = function(number) {
   });
   this.player = new Player(level.player.x, level.player.y);
   this.helpText = level.helpText;
-  this.scaleX = CANVAS_WIDTH / level.mapSize.cols;
-  this.scaleY = CANVAS_HEIGHT / level.mapSize.rows;
+  this.setScale();
   console.log(this.scaleX);
+}
+
+Level.prototype.setScale = function() {
+  if ((this.mapSize.cols / this.mapSize.rows) < CANVAS_WIDTH / CANVAS_HEIGHT) {
+    this.scaleX = CANVAS_HEIGHT / this.mapSize.rows;
+    this.scaleY = this.scaleX * 1.59;
+  } else {
+    this.scaleX = CANVAS_WIDTH / this.mapSize.cols;
+    console.log(this.mapSize.cols, this.scaleX);
+    this.scaleY = this.scaleX * 1.59;
+  }
 }
 
 Level.prototype.render = function() {
@@ -160,7 +210,11 @@ Level.prototype.render = function() {
 
   for (var row = 0; row < this.mapSize.rows; row++) {
       for (var col = 0; col < this.mapSize.cols; col++) {
-          ctx.drawImage(Resources.get(rowImages[this.map[col + (row * this.mapSize.cols)]]), col * 101, row * 83, 101, 108 * 1.59064327);
+          ctx.drawImage(
+            Resources.get(rowImages[this.map[col + (row * this.mapSize.cols)]]),
+            col * this.scaleX,
+            row * this.scaleY * 0.5, this.scaleX,
+             this.scaleY); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
       }
   }
 };
