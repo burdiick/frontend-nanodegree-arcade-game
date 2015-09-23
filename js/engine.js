@@ -80,9 +80,24 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
+    function checkCollisions() {
+      level.enemies.forEach(function (enemy) {
+        if (level.player.x + (enemy.scaleX / 2) < enemy.x + enemy.scaleX && level.player.x + (enemy.scaleX / 2) > enemy.x) {
+          if(level.player.y + (enemy.scaleX / 2) < enemy.y + enemy.scaleX
+          && level.player.y + (enemy.scaleX / 2) > enemy.y) {
+            level.player.lives--;
+            //console.log("successfull colliision!");
+            // TODO REPLACE WITH FUNCTION
+            level.player.x = level.player.initX;
+            level.player.y = level.player.initY;
+          }
+        }
+      });
+
+    }
     /* This is called by the update function  and loops through all of the
      * objects within your allEnemies array as defined in app.js and calls
      * their update() methods. It will then call the update function for your
@@ -94,18 +109,11 @@ var Engine = (function(global) {
         level.enemies.forEach(function (enemy) {
             enemy.update(dt);
         });
+        //ui.update(level);
         level.player.update();
+
     }
 
-    function setFont(style) {
-      switch(style) {
-        case "h1":
-          ctx.font = "40px Helvetica";
-          break;
-          default:
-            ctx.font = "40px Helvetica";
-      }
-    }
     /* This function initially draws the "game level", it will then call
      * the renderEntities function. Remember, this function is called every
      * game tick (or loop of the game engine) because that's how games work -
@@ -119,12 +127,9 @@ var Engine = (function(global) {
 
         level.render();
         renderEntities();
-        renderHUD();
+        ui.render();
     }
 
-    function renderHUD() {
-
-    }
     /* This function is called by the render function and is called on each game
      * tick. It's purpose is to then call the render functions you have defined
      * on your enemy and player entities within app.js
@@ -138,7 +143,7 @@ var Engine = (function(global) {
         });
 
         level.player.render();
-        ui.render();
+
     }
 
     /* This function does nothing but it could have been a good place to

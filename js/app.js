@@ -3,15 +3,37 @@ var CANVAS_WIDTH = 800;
 var CANVAS_HEIGHT = 600;
 
 var UserInterface = function (lives, help, num) {
-  this.lives = {'text': lives, 'x': 10, 'y': 120, 'width': 100};
-  this.help = {'text': help, 'x': 10, 'y': 540, 'width': 400};
-  this.number = {'text': num, 'x': 10, 'y': 80, 'width': 100};
+  this.lives = {
+    'text': lives,
+    'x': 10,
+    'y': 60,
+    'width': 100
+  };
+  this.help = {
+    'text': help,
+    'x': 10,
+    'y': 560,
+    'width': 600
+  };
+  this.number = {
+    'text': num,
+    'x': 10,
+    'y': 30,
+    'width': 100
+  };
+
 }
 
 UserInterface.prototype.render = function () {
   this.drawText('Level: ', this.number);
   this.drawText('Lives: ', this.lives);
   this.drawText('Goal: ', this.help);
+}
+
+UserInterface.prototype.update = function (currentLevel) {
+  this.lives = currentLevel.player.lives;
+  this.help = currentLevel.helpText;
+  this.number = currentLevel.levelNumber;
 }
 
 UserInterface.prototype.drawText = function (text, obj) {
@@ -26,22 +48,22 @@ UserInterface.prototype.drawText = function (text, obj) {
 }
 
 UserInterface.prototype.setFont = function (style) {
-  switch(style) {
-    case "h1":
-      ctx.font = "25px Helvetica";
-      ctx.fillStyle = '#FFF';
-      break;
-    case 'shadow':
-      ctx.font = "25px Helvetica";
-      ctx.fillStyle = '#000';
-      break;
-    default:
-        ctx.font = "30px Helvetica";
+  switch (style) {
+  case "h1":
+    ctx.font = "25px Helvetica";
+    ctx.fillStyle = '#FFF';
+    break;
+  case 'shadow':
+    ctx.font = "25px Helvetica";
+    ctx.fillStyle = '#000';
+    break;
+  default:
+    ctx.font = "30px Helvetica";
 
   }
 }
 
-var LevelObject = function (object, scaleX, scaleY, sprite) {
+var LevelObject = function (object, scaleX, scaleY, sprite, offset) {
   this.sprite = sprite;
   this.x = object.x * scaleX;
   console.log(object.x);
@@ -49,11 +71,12 @@ var LevelObject = function (object, scaleX, scaleY, sprite) {
   this.scaleX = scaleX;
   this.scaleY = scaleY;
   this.speed = object.speed;
+  this.offset = offset;
 
 }
 
 LevelObject.prototype.render = function () {
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.scaleX, this.scaleY);
+  ctx.drawImage(Resources.get(this.sprite), this.x + this.offset, this.y, this.scaleX, this.scaleY);
 }
 
 LevelObject.prototype.setX = function (multiplier) {
@@ -72,13 +95,13 @@ LevelObject.prototype.getY = function () {
   return this.y / (this.scaleX * 0.79);
 };
 
-var Enemy = function (enemy, scaleX, scaleY) {
-  LevelObject.call(this, enemy, scaleX, scaleY, 'images/enemy-bug.png');
+var Enemy = function (enemy, scaleX, scaleY, offset) {
+  LevelObject.call(this, enemy, scaleX, scaleY, 'images/enemy-bug.png', offset);
   console.log(this.x);
   this.y = this.y - scaleY * 0.10;
   this.path = enemy.path;
   this.currentWaypoint = 1;
-  console.log(enemy.type);
+
 };
 Enemy.prototype = Object.create(LevelObject.prototype);
 Enemy.prototype.constructor = Enemy;
@@ -115,14 +138,16 @@ Enemy.prototype.update = function (dt) {
     }*/
 };
 
-var Player = function (player, scaleX, scaleY) {
+var Player = function (player, scaleX, scaleY, offset) {
   LevelObject.call(this, player, scaleX, scaleY,
-    'images/char-boy.png');
+    'images/char-boy.png', offset);
   this.y = this.y - scaleY * 0.05;
   this.movement = {
     'move': ''
   };
   this.lives = 3;
+  this.initX = this.x;
+  this.initY = this.y;
 };
 
 Player.prototype = Object.create(LevelObject.prototype);
@@ -243,7 +268,7 @@ var levels = {
       'x': 2,
       'y': 5
     },
-    'helpText': 'Navigate to the water. Watch out for bugs!'
+    'helpText': 'Collet all gems and reach the goal!'
   }]
 };
 
@@ -254,14 +279,16 @@ var Level = function (number) {
   this.mapSize = level.mapSize;
   this.map = level.map;
   var scale = this.setScale();
-
+  this.scale = scale;
+  var offset = (CANVAS_WIDTH - (this.mapSize.cols * this.scale.x)) / 2;
+  this.offset = offset;
   this.enemies = level.enemies.map(function (enemy) {
     console.log(scale);
-    return new Enemy(enemy, scale.x, scale.y);
+    return new Enemy(enemy, scale.x, scale.y, offset);
   });
-  this.player = new Player(level.player, scale.x, scale.y);
+  this.player = new Player(level.player, scale.x, scale.y, this.offset);
   this.helpText = level.helpText;
-  this.scale = scale;
+
 }
 
 Level.prototype.setScale = function () {
@@ -286,13 +313,14 @@ Level.prototype.render = function () {
     'images/grass-block.png' // Grass Block
   ];
 
-
+  ctx.fillStyle = "#6ad8e3"
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   for (var row = 0; row < this.mapSize.rows; row++) {
     for (var col = 0; col < this.mapSize.cols; col++) {
       ctx.drawImage(
         Resources.get(rowImages[this.map[col + (row * this.mapSize.cols)]]),
-        col * this.scale.x,
-        row * this.scale.y * 0.5, this.scale.x,
+        col * this.scale.x + this.offset,
+      row * this.scale.y * 0.5, this.scale.x,
         this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
     }
   }
@@ -301,8 +329,9 @@ Level.prototype.render = function () {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var level = new Level(1);
+var level = new Level(2);
 var ui = new UserInterface(3, level.helpText, level.levelNumber);
+
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function (e) {
