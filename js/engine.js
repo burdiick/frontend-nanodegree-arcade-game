@@ -97,6 +97,15 @@ var Engine = (function(global) {
         level.player.update();
     }
 
+    function setFont(style) {
+      switch(style) {
+        case "h1":
+          ctx.font = "40px Helvetica";
+          break;
+          default:
+            ctx.font = "40px Helvetica";
+      }
+    }
     /* This function initially draws the "game level", it will then call
      * the renderEntities function. Remember, this function is called every
      * game tick (or loop of the game engine) because that's how games work -
@@ -129,6 +138,7 @@ var Engine = (function(global) {
         });
 
         level.player.render();
+        ui.render();
     }
 
     /* This function does nothing but it could have been a good place to

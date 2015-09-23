@@ -2,6 +2,45 @@
 var CANVAS_WIDTH = 800;
 var CANVAS_HEIGHT = 600;
 
+var UserInterface = function (lives, help, num) {
+  this.lives = {'text': lives, 'x': 10, 'y': 120, 'width': 100};
+  this.help = {'text': help, 'x': 10, 'y': 540, 'width': 400};
+  this.number = {'text': num, 'x': 10, 'y': 80, 'width': 100};
+}
+
+UserInterface.prototype.render = function () {
+  this.drawText('Level: ', this.number);
+  this.drawText('Lives: ', this.lives);
+  this.drawText('Goal: ', this.help);
+}
+
+UserInterface.prototype.drawText = function (text, obj) {
+  ctx.fillStyle = "#1F1F1F";
+  ctx.globalAlpha = 0.6;
+  ctx.fillRect(0, obj.y - 15, obj.x + obj.width - 10, 20);
+  ctx.globalAlpha = 1;
+  this.setFont('shadow');
+  ctx.fillText(text + obj.text, obj.x + 2, obj.y + 2, obj.width, 30);
+  this.setFont('h1');
+  ctx.fillText(text + obj.text, obj.x, obj.y, obj.width, 30);
+}
+
+UserInterface.prototype.setFont = function (style) {
+  switch(style) {
+    case "h1":
+      ctx.font = "25px Helvetica";
+      ctx.fillStyle = '#FFF';
+      break;
+    case 'shadow':
+      ctx.font = "25px Helvetica";
+      ctx.fillStyle = '#000';
+      break;
+    default:
+        ctx.font = "30px Helvetica";
+
+  }
+}
+
 var LevelObject = function (object, scaleX, scaleY, sprite) {
   this.sprite = sprite;
   this.x = object.x * scaleX;
@@ -83,7 +122,9 @@ var Player = function (player, scaleX, scaleY) {
   this.movement = {
     'move': ''
   };
+  this.lives = 3;
 };
+
 Player.prototype = Object.create(LevelObject.prototype);
 Player.prototype.constructor = Player;
 
@@ -155,7 +196,7 @@ var levels = {
     }],
     'player': { // Data to set player location for map
       'x': 2,
-      'y': 5
+      'y': 5,
     },
     'helpText': 'Navigate to the water. Watch out for bugs!'
   }, {
@@ -261,7 +302,7 @@ Level.prototype.render = function () {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var level = new Level(1);
-
+var ui = new UserInterface(3, level.helpText, level.levelNumber);
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function (e) {
