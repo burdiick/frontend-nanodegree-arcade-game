@@ -125,33 +125,38 @@ Enemy.prototype.constructor = Enemy;
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function (dt) {
-  // You should multiply any movement by the dt parameter
-  // which will ensure the game runs at the same speed for
-  // all computers.
-  //console.log(this.x + " " + this.speed + " " + dt);
-  //console.log(this.currentWaypoint + " currentWaypoint");
-  if (this.x < this.setX(this.path[this.currentWaypoint].x)) {
-    this.x = this.x + (this.speed * dt) / this.scaleX;
-    console.log(this.x + " " + this.speed + " " + dt);
-    if (this.x > this.setX(this.path[this.currentWaypoint].x)) {
-      if ((this.path.length - 1) > this.currentWaypoint) {
-        this.currentWaypoint++;
-      } else {
-        this.currentWaypoint = 0;
+    var targetX = this.setX(this.path[this.currentWaypoint].x);
+    var targetY = this.setY(this.path[this.currentWaypoint].y) - (this.scaleY * 0.1);
+
+    if (this.x < targetX) {
+      this.x = this.x + (this.scaleX / 2 * (this.speed * dt));
+      if(this.x >= targetX) {
+        this.x = targetX;
       }
-      this.x = this.setX(this.path[this.currentWaypoint].x);
-      this.x = this.x + 1;
+    } else if (this.x > targetX) {
+      this.x = this.x - (this.scaleX / 2 * (this.speed * dt));
+      if(this.x <= targetX) {
+        this.x = targetX;
+      }
     }
-  } else if (this.x > this.setX(this.path[this.currentWaypoint].x))
-    this.x = this.x - (this.speed * dt) / this.scaleX;
-    if (this.x < this.setX(this.path[this.currentWaypoint].x)) {
-      if ((this.path.length - 1) > this.currentWaypoint) {
+
+    if (this.y < targetY) {
+      this.y = this.y + (this.scaleX / 2 * (this.speed * dt));
+      if(this.y >= targetY) {
+        this.y = targetY;
+      }
+    } else if (this.y > targetY) {
+      this.y = this.y - (this.scaleX / 2 * (this.speed * dt));
+      if(this.y <= targetY) {
+        this.y = targetY;
+      }
+    }
+    if (this.x == targetX && this.y == targetY) {
+      if (this.path.length > this.currentWaypoint + 1) {
         this.currentWaypoint++;
       } else {
         this.currentWaypoint = 0;
       }
-      this.x = this.setX(this.path[this.currentWaypoint].x);
-      this.x = this.x - 1;
     }
 };
 
@@ -183,6 +188,10 @@ Player.prototype.update = function () {
   } else if (this.movement === 'down' && this.getY() + 1 < level.mapSize.rows - 1) {
     this.y = this.setY(this.getY() + 1);
     console.log(this.y);
+  } else if (this.movement === '1' && level.levelNumber != 1) {
+    level = new Level(1);
+  } else if (this.movement === '2' && level.levelNumber != 2) {
+    level = new Level(2);
   }
   this.movement = '';
 };
@@ -213,7 +222,7 @@ var levels = {
     ],
     'enemies': [{ // Data to instantiate enemies
       'type': 'red-bug', // Enemy type
-      'speed': 100,
+      'speed': 5,
       'x': 0,
       'y': 1, // Movement speed
       'path': [{ // Array of grid locations to use as waypoints
@@ -225,15 +234,15 @@ var levels = {
       }]
     }, {
       'type': 'red-bug',
-      'speed': 100,
+      'speed': 3,
       'x': 4,
       'y': 3,
       'path': [{
         'x': 4,
         'y': 3
       }, {
-        'x': 4,
-        'y': 1
+        'x': 0,
+        'y': 3
       }],
     }],
     'player': { // Data to set player location for map
@@ -258,7 +267,7 @@ var levels = {
     ],
     'enemies': [{ // Data to instantiate enemies
       'type': 'red-bug', // Enemy type
-      'speed': 10, // Movement speed
+      'speed': 5, // Movement speed
       'x': 4,
       'y': 3,
       'path': [{ // Array of grid locations to use as waypoints
@@ -270,15 +279,21 @@ var levels = {
       }]
     }, {
       'type': 'red-bug',
-      'speed': 20,
+      'speed': 5,
       'x': 9,
       'y': 6,
       'path': [{
         'x': 9,
         'y': 6
       }, {
-        'x': 4,
-        'y': 1
+        'x': 5,
+        'y': 6
+      }, {
+        'x': 5,
+        'y': 2
+      }, {
+        'x': 9,
+        'y': 2
       }],
     }],
     'player': { // Data to set player location for map
@@ -346,7 +361,7 @@ Level.prototype.render = function () {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var level = new Level(2);
+var level = new Level(1);
 var ui = new UserInterface(3, level.helpText, level.levelNumber);
 
 // This listens for key presses and sends the keys to your
@@ -356,8 +371,11 @@ document.addEventListener('keyup', function (e) {
     37: 'left',
     38: 'up',
     39: 'right',
-    40: 'down'
+    40: 'down',
+    49: '1',
+    50: '2'
   };
+  console.log(e.keyCode);
   console.log(allowedKeys[e.keyCode]);
   level.player.handleInput(allowedKeys[e.keyCode]);
 });
