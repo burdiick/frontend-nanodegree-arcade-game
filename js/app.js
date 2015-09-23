@@ -18,7 +18,6 @@ var UserInterface = function (lives, help, num) {
     'x': 10,
     'y': 30
   };
-
 }
 
 UserInterface.prototype.render = function () {
@@ -164,9 +163,6 @@ var Player = function (player, scaleX, scaleY, offset) {
   LevelObject.call(this, player, scaleX, scaleY,
     'images/char-boy.png', offset);
   this.y = this.y - scaleY * 0.05;
-  this.movement = {
-    'move': ''
-  };
   this.lives = 3;
   this.initX = this.x;
   this.initY = this.y;
@@ -176,28 +172,27 @@ Player.prototype = Object.create(LevelObject.prototype);
 Player.prototype.constructor = Player;
 
 Player.prototype.update = function () {
-  if (this.movement === 'left' && this.getX() > 0) {
-    this.x = this.setX(this.getX() - 1);
-    console.log(this.x);
-  } else if (this.movement === 'right' && this.getX() < level.mapSize.cols - 1) {
-    this.x = this.setX(this.getX() + 1);
-    console.log(level.mapSize.rows);
-  } else if (this.movement === 'up' && this.getY() > 0) {
-    this.y = this.setY(this.getY() - 1);
-    console.log(this.y);
-  } else if (this.movement === 'down' && this.getY() + 1 < level.mapSize.rows - 1) {
-    this.y = this.setY(this.getY() + 1);
-    console.log(this.y);
-  } else if (this.movement === '1' && level.levelNumber != 1) {
-    level = new Level(1);
-  } else if (this.movement === '2' && level.levelNumber != 2) {
-    level = new Level(2);
-  }
-  this.movement = '';
+
 };
 
 Player.prototype.handleInput = function (key) {
-  this.movement = key;
+  if (key === 'left' && this.getX() > 0) {
+    this.x = this.setX(this.getX() - 1);
+    console.log(this.x);
+  } else if (key === 'right' && this.getX() < level.mapSize.cols - 1) {
+    this.x = this.setX(this.getX() + 1);
+    console.log(level.mapSize.rows);
+  } else if (key === 'up' && this.getY() > 0) {
+    this.y = this.setY(this.getY() - 1);
+    console.log(this.y);
+  } else if (key === 'down' && this.getY() + 1 < level.mapSize.rows - 1) {
+    this.y = this.setY(this.getY() + 1);
+    console.log(this.y);
+  } else if (key === '1' && level.levelNumber != 1) {
+    level = new Level(1);
+  } else if (key === '2' && level.levelNumber != 2) {
+    level = new Level(2);
+  }
 };
 
 /*
@@ -213,7 +208,7 @@ var levels = {
       'cols': 5
     },
     'map': [ // Array holding map layout.
-      0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
       1, 2, 2, 1, 2,
       1, 2, 2, 2, 2,
@@ -257,25 +252,25 @@ var levels = {
       'cols': 10
     },
     'map': [ // Array holding map layout.
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-      1, 2, 2, 1, 2, 0, 0, 0, 0, 0,
-      1, 2, 2, 2, 2, 0, 0, 0, 0, 0,
-      1, 1, 2, 2, 1, 0, 0, 0, 0, 0,
-      1, 1, 2, 2, 1, 0, 0, 0, 0, 0,
-      1, 1, 2, 2, 1, 0, 0, 0, 0, 0
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 2, 2, 1, 2, 2, 2, 1, 1, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 1, 2, 2, 2, 2, 2,
+      1, 1, 2, 2, 1, 2, 2, 1, 1, 2,
+      1, 1, 2, 2, 2, 2, 2, 2, 2, 2
     ],
     'enemies': [{ // Data to instantiate enemies
       'type': 'red-bug', // Enemy type
       'speed': 5, // Movement speed
-      'x': 4,
+      'x': 0,
       'y': 3,
       'path': [{ // Array of grid locations to use as waypoints
-        'x': 4,
+        'x': 0,
         'y': 3
       }, {
         'x': 4,
-        'y': 1
+        'y': 3
       }]
     }, {
       'type': 'red-bug',
@@ -298,7 +293,7 @@ var levels = {
     }],
     'player': { // Data to set player location for map
       'x': 2,
-      'y': 5
+      'y': 6
     },
     'helpText': 'Collet all gems and reach the goal!'
   }]
@@ -342,7 +337,8 @@ Level.prototype.render = function () {
   var rowImages = [
     'images/water-block.png', // water block
     'images/stone-block.png', // Stone Block
-    'images/grass-block.png' // Grass Block
+    'images/grass-block.png', // Grass Block
+    'images/Selector.png'
   ];
 
   ctx.fillStyle = "#6ad8e3"
@@ -351,11 +347,17 @@ Level.prototype.render = function () {
     for (var col = 0; col < this.mapSize.cols; col++) {
       ctx.drawImage(
         Resources.get(rowImages[this.map[col + (row * this.mapSize.cols)]]),
-        col * this.scale.x + this.offset,
-      row * this.scale.y * 0.5, this.scale.x,
-        this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
+                      col * this.scale.x + this.offset,
+                      row * this.scale.y * 0.5,
+                      this.scale.x,
+                      this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
     }
   }
+  ctx.drawImage(Resources.get(rowImages[3]),
+                (this.mapSize.cols - 1) * this.scale.x  + this.offset,
+                0 - this.scale.y * 0.25,
+                this.scale.x,
+                this.scale.y);
 };
 
 // Now instantiate your objects.
