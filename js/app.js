@@ -6,20 +6,17 @@ var UserInterface = function (lives, help, num) {
   this.lives = {
     'text': lives,
     'x': 10,
-    'y': 60,
-    'width': 100
+    'y': 60
   };
   this.help = {
     'text': help,
     'x': 10,
-    'y': 560,
-    'width': 600
+    'y': 560
   };
   this.number = {
     'text': num,
     'x': 10,
-    'y': 30,
-    'width': 100
+    'y': 30
   };
 
 }
@@ -37,24 +34,38 @@ UserInterface.prototype.update = function (currentLevel) {
 }
 
 UserInterface.prototype.drawText = function (text, obj) {
+  // Render background gray box
   ctx.fillStyle = "#1F1F1F";
   ctx.globalAlpha = 0.6;
-  ctx.fillRect(0, obj.y - 15, obj.x + obj.width - 10, 20);
+  ctx.fillRect(0, obj.y - 15, ctx.measureText(text + obj.text).width, 20);
   ctx.globalAlpha = 1;
+
+  // Render Drop shadow
+  this.setFont('h2')
   this.setFont('shadow');
-  ctx.fillText(text + obj.text, obj.x + 2, obj.y + 2, obj.width, 30);
+  ctx.fillText(text, obj.x + 2, obj.y + 2);
+  this.setFont('h1')
+  this.setFont('shadow');
+  ctx.fillText(obj.text, obj.x + ctx.measureText(text).width + 2, obj.y + 2);
+
+  // Render Text
+  this.setFont('h2');
+  ctx.fillText(text, obj.x, obj.y);
   this.setFont('h1');
-  ctx.fillText(text + obj.text, obj.x, obj.y, obj.width, 30);
+  ctx.fillText(obj.text, obj.x + ctx.measureText(text).width, obj.y);
 }
 
 UserInterface.prototype.setFont = function (style) {
   switch (style) {
   case "h1":
-    ctx.font = "25px Helvetica";
+    ctx.font = "28px Helvetica";
     ctx.fillStyle = '#FFF';
     break;
-  case 'shadow':
+  case 'h2':
     ctx.font = "25px Helvetica";
+    ctx.fillStyle = '#ddcd00'
+    break;
+  case 'shadow':
     ctx.fillStyle = '#000';
     break;
   default:
@@ -112,7 +123,7 @@ Enemy.prototype.update = function (dt) {
   // which will ensure the game runs at the same speed for
   // all computers.
   //console.log(this.x + " " + this.speed + " " + dt);
-  console.log(this.currentWaypoint + " currentWaypoint");
+  //console.log(this.currentWaypoint + " currentWaypoint");
   /*if (this.x < this.setX(this.path[this.currentWaypoint].x)) {
     this.x = this.x + (this.speed * dt) / this.scaleX;
     console.log(this.x + " " + this.speed + " " + dt);
