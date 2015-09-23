@@ -1,4 +1,5 @@
-// Enemies our player must avoid
+// Set canvas size.
+// TODO set these values based on device.
 var CANVAS_WIDTH = 800;
 var CANVAS_HEIGHT = 600;
 
@@ -21,6 +22,7 @@ var UserInterface = function (lives, help, num) {
 }
 
 UserInterface.prototype.render = function () {
+  // Draw UI to screen
   this.drawText('Level: ', this.number);
   this.drawText('Lives: ', this.lives);
   this.drawText('Goal: ', this.help);
@@ -61,6 +63,8 @@ UserInterface.prototype.drawText = function (text, obj) {
 }
 
 UserInterface.prototype.setFont = function (style) {
+  // Set ctx to required style.
+  // TODO there has to be a better way to do this.
   switch (style) {
   case "h1":
     ctx.font = "28px Helvetica";
@@ -75,7 +79,6 @@ UserInterface.prototype.setFont = function (style) {
     break;
   default:
     ctx.font = "30px Helvetica";
-
   }
 }
 
@@ -88,7 +91,6 @@ var LevelObject = function (object, scaleX, scaleY, sprite, offset) {
   this.scaleY = scaleY;
   this.speed = object.speed;
   this.offset = offset;
-
 }
 
 LevelObject.prototype.render = function () {
@@ -121,42 +123,48 @@ var Enemy = function (enemy, scaleX, scaleY, offset) {
 };
 Enemy.prototype = Object.create(LevelObject.prototype);
 Enemy.prototype.constructor = Enemy;
+
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function (dt) {
-    var targetX = this.setX(this.path[this.currentWaypoint].x);
-    var targetY = this.setY(this.path[this.currentWaypoint].y) - (this.scaleY * 0.1);
+  // Calculate location of next waypoint
+  var targetX = this.setX(this.path[this.currentWaypoint].x);
+  var targetY = this.setY(this.path[this.currentWaypoint].y) - (this.scaleY * 0.1);
 
-    if (this.x < targetX) {
-      this.x = this.x + (this.scaleX / 2 * (this.speed * dt));
-      if(this.x >= targetX) {
-        this.x = targetX;
-      }
-    } else if (this.x > targetX) {
-      this.x = this.x - (this.scaleX / 2 * (this.speed * dt));
-      if(this.x <= targetX) {
-        this.x = targetX;
-      }
+  // Move enemy toward next waypoint X
+  if (this.x < targetX) {
+    this.x = this.x + (this.scaleX / 2 * (this.speed * dt));
+    if (this.x >= targetX) {
+      this.x = targetX;
     }
+  } else if (this.x > targetX) {
+    this.x = this.x - (this.scaleX / 2 * (this.speed * dt));
+    if (this.x <= targetX) {
+      this.x = targetX;
+    }
+  }
 
-    if (this.y < targetY) {
-      this.y = this.y + (this.scaleX / 2 * (this.speed * dt));
-      if(this.y >= targetY) {
-        this.y = targetY;
-      }
-    } else if (this.y > targetY) {
-      this.y = this.y - (this.scaleX / 2 * (this.speed * dt));
-      if(this.y <= targetY) {
-        this.y = targetY;
-      }
+  // Move enemy toward next waypoint Y
+  if (this.y < targetY) {
+    this.y = this.y + (this.scaleX / 2 * (this.speed * dt));
+    if (this.y >= targetY) {
+      this.y = targetY;
     }
-    if (this.x == targetX && this.y == targetY) {
-      if (this.path.length > this.currentWaypoint + 1) {
-        this.currentWaypoint++;
-      } else {
-        this.currentWaypoint = 0;
-      }
+  } else if (this.y > targetY) {
+    this.y = this.y - (this.scaleX / 2 * (this.speed * dt));
+    if (this.y <= targetY) {
+      this.y = targetY;
     }
+  }
+
+  // Set next waypoint
+  if (this.x == targetX && this.y == targetY) {
+    if (this.path.length > this.currentWaypoint + 1) {
+      this.currentWaypoint++;
+    } else {
+      this.currentWaypoint = 0;
+    }
+  }
 };
 
 var Player = function (player, scaleX, scaleY, offset) {
@@ -167,7 +175,6 @@ var Player = function (player, scaleX, scaleY, offset) {
   this.initX = this.x;
   this.initY = this.y;
 };
-
 Player.prototype = Object.create(LevelObject.prototype);
 Player.prototype.constructor = Player;
 
@@ -305,7 +312,7 @@ var Level = function (number) {
   this.levelNumber = number;
   this.mapSize = level.mapSize;
   this.map = level.map;
-  var scale = this.setScale();
+  var scale = this.setScale(); // TODO figure out how to pass 'this' into array.map()
   this.scale = scale;
   var offset = (CANVAS_WIDTH - (this.mapSize.cols * this.scale.x)) / 2;
   this.offset = offset;
@@ -318,6 +325,7 @@ var Level = function (number) {
 
 }
 
+// Scale all objects to fit screen
 Level.prototype.setScale = function () {
   if ((this.mapSize.cols / this.mapSize.rows) < CANVAS_WIDTH / CANVAS_HEIGHT) {
     return {
@@ -341,23 +349,29 @@ Level.prototype.render = function () {
     'images/Selector.png'
   ];
 
+  // Draw background to blue color
   ctx.fillStyle = "#6ad8e3"
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  // Draw map to screen
   for (var row = 0; row < this.mapSize.rows; row++) {
     for (var col = 0; col < this.mapSize.cols; col++) {
       ctx.drawImage(
         Resources.get(rowImages[this.map[col + (row * this.mapSize.cols)]]),
-                      col * this.scale.x + this.offset,
-                      row * this.scale.y * 0.5,
-                      this.scale.x,
-                      this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
+        col * this.scale.x + this.offset,
+        row * this.scale.y * 0.5,
+        this.scale.x,
+        this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
     }
   }
+
+  // TEMP render Selector.
+  // TODO refactor to draw all other objects to screen.
   ctx.drawImage(Resources.get(rowImages[3]),
-                (this.mapSize.cols - 1) * this.scale.x  + this.offset,
-                0 - this.scale.y * 0.25,
-                this.scale.x,
-                this.scale.y);
+    (this.mapSize.cols - 1) * this.scale.x + this.offset,
+    0 - this.scale.y * 0.25,
+    this.scale.x,
+    this.scale.y);
 };
 
 // Now instantiate your objects.
