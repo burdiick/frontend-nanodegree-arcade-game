@@ -53,7 +53,7 @@ var Engine = (function(global) {
          */
         lastTime = now;
 
-        /* Use the browser's requestAnimationFrame function to call this
+      /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
         win.requestAnimationFrame(main);
@@ -109,9 +109,8 @@ var Engine = (function(global) {
         level.enemies.forEach(function (enemy) {
             enemy.update(dt);
         });
-        //ui.update(level);
         level.player.update();
-
+        ui.update(level);
     }
 
     /* This function initially draws the "game level", it will then call

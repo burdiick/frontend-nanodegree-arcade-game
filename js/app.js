@@ -28,9 +28,15 @@ UserInterface.prototype.render = function () {
 }
 
 UserInterface.prototype.update = function (currentLevel) {
-  this.lives = currentLevel.player.lives;
-  this.help = currentLevel.helpText;
-  this.number = currentLevel.levelNumber;
+  // Change level and goal text if level changes
+  if (this.number.text != currentLevel.levelNumber) {
+    this.number.text = currentLevel.levelNumber;
+    this.help.text = currentLevel.helpText;
+  }
+  // Change lives count if different
+  if (this.lives.text != currentLevel.player.lives) {
+    this.lives.text = currentLevel.player.lives;
+  }
 }
 
 UserInterface.prototype.drawText = function (text, obj) {
@@ -124,7 +130,7 @@ Enemy.prototype.update = function (dt) {
   // all computers.
   //console.log(this.x + " " + this.speed + " " + dt);
   //console.log(this.currentWaypoint + " currentWaypoint");
-  /*if (this.x < this.setX(this.path[this.currentWaypoint].x)) {
+  if (this.x < this.setX(this.path[this.currentWaypoint].x)) {
     this.x = this.x + (this.speed * dt) / this.scaleX;
     console.log(this.x + " " + this.speed + " " + dt);
     if (this.x > this.setX(this.path[this.currentWaypoint].x)) {
@@ -146,7 +152,7 @@ Enemy.prototype.update = function (dt) {
       }
       this.x = this.setX(this.path[this.currentWaypoint].x);
       this.x = this.x - 1;
-    }*/
+    }
 };
 
 var Player = function (player, scaleX, scaleY, offset) {
