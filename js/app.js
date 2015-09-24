@@ -116,7 +116,7 @@ UserInterface.prototype.render = function () {
   // Draw UI to screen
   this.drawText(this.number, 'left', 'bottom', 'black', true, 'h1');
   this.drawText(this.lives, 'left', 'bottom', 'black', true, 'h1');
-  this.drawText(this.help, 'left', 'bottom', 'black', true, 'h1');
+  this.drawText(this.help, 'left', 'bottom', 'black', true, 'h3');
 }
 
 UserInterface.prototype.update = function (currentLevel) {
@@ -134,18 +134,23 @@ UserInterface.prototype.update = function (currentLevel) {
 // Takes agame.ui item object with .label, .text, and .x and .y locations
 UserInterface.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
   // Render background gray box
+  this.setFont('h2');
+  var labelWidth = ctx.measureText(obj.label).width;
+  this.setFont(font);
+  var textWidth = ctx.measureText(obj.text).width;
+  //console.log(test);
+  ctx.save();
+  ctx.textAlign = tl;
+  ctx.textBaseline = bl
+
   if(bg) {
     ctx.save();
     this.setFont('shadowOff');
     ctx.fillStyle = "#1F1F1F";
     ctx.globalAlpha = 0.6;
-    ctx.fillRect(obj.x - 15, obj.y - 15, ctx.measureText(obj.label).width + ctx.measureText(obj.text).width, 20);
+    ctx.fillRect(obj.x - 20, obj.y - 20, labelWidth + textWidth + 10, 20);
     ctx.restore();
   }
-
-  ctx.save();
-  ctx.textAlign = tl;
-  ctx.textBaseline = bl
 
   if (shadow != 'transparent') {
     ctx.shadowBlur = 1;
@@ -153,14 +158,14 @@ UserInterface.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
     ctx.shadowOffsetY = 2;
     ctx.shadowColor = shadow;
   }
-  
+
   game.ui.setFont(font);
 
     if (obj.label) {
       game.ui.setFont('h2');
       ctx.fillText(obj.label, obj.x, obj.y);
       game.ui.setFont(font);
-      ctx.fillText(obj.text, scale(obj.x) + ctx.measureText(obj.label), obj.y);
+      ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
     } else {
       //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
       ctx.fillText(obj.text, scale(obj.x), obj.y);
@@ -179,6 +184,10 @@ UserInterface.prototype.setFont = function (style) {
   case 'h2':
     ctx.font = "25px Helvetica";
     ctx.fillStyle = '#ddcd00';
+    break;
+  case 'h3':
+    ctx.font = "20px Helvetica";
+    ctx.fillStyle = '#FFF';
     break;
   case 'h5':
     ctx.font = "15px Helvetica";

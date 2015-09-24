@@ -71,6 +71,7 @@ var Engine = (function (global) {
         }
       }
     });
+
   }
 
   function updateEntities(dt) {
