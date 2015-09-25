@@ -228,6 +228,13 @@ LevelObject.prototype.getY = function () {
   return this.y / (this.scale.x * 0.79);
 };
 
+var Item = function (item, scale, sprite, offset) {
+  LevelObject.call(this, item, scale, sprite, offset);
+  this.y = this.y - scale.y * 0.10;
+}
+Item.prototype = Object.create(LevelObject.prototype);
+Item.prototype.constructor = Item;
+
 var Enemy = function (enemy, scale, offset) {
   LevelObject.call(this, enemy, scale, 'images/enemy-bug.png', offset);
   console.log(this.x);
@@ -333,29 +340,37 @@ var levels = {
       1, 1, 2, 2, 1,
       1, 1, 2, 2, 1
     ],
+    'items': [
+      2, 0, 0, 0, 7,
+      1, 1, 0, 1, 1,
+      0, 0, 0, 0, 0,
+      1, 1, 0, 1, 1,
+      0, 2, 0, 0, 0,
+      0, 0, 0, 2, 0
+    ],
     'enemies': [{ // Data to instantiate enemies
       'type': 'red-bug', // Enemy type
       'speed': 5,
       'x': 0,
-      'y': 1, // Movement speed
+      'y': 2, // Movement speed
       'path': [{ // Array of grid locations to use as waypoints
         'x': 0,
-        'y': 1
+        'y': 2
       }, {
         'x': 4,
-        'y': 1
+        'y': 2
       }]
     }, {
       'type': 'red-bug',
       'speed': 3,
       'x': 4,
-      'y': 3,
+      'y': 4,
       'path': [{
         'x': 4,
-        'y': 3
+        'y': 4
       }, {
         'x': 0,
-        'y': 3
+        'y': 4
       }],
     }],
     'player': { // Data to set player location for map
@@ -370,6 +385,15 @@ var levels = {
       'cols': 10
     },
     'map': [ // Array holding map layout.
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 2, 2, 1, 2, 2, 2, 1, 1, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 1, 2, 2, 2, 2, 2,
+      1, 1, 2, 2, 1, 2, 2, 1, 1, 2,
+      1, 1, 2, 2, 2, 2, 2, 2, 2, 2
+    ],
+    'items': [ // Array holding map layout.
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 2, 2, 1, 2, 2, 2, 1, 1, 2,
@@ -433,6 +457,23 @@ var Level = function (number) {
   });
   this.player = new Player(level.player, scale, this.offset);
   this.helpText = level.helpText;
+  this.items = level.items.map(function (item) {
+    var sprite = '';
+    switch (item) {
+      case 1:
+        sprite = 'images/Rock.png';
+        break;
+      case 2:
+        sprite = 'images/gem-blue.png';
+        break;
+      case 7:
+        sprite = 'images/Selector.png'
+        break;
+      default:
+    }
+    console.log(sprite, "in switch", item);
+    return new Item(item, scale, sprite, offset);
+  });
 
 }
 
@@ -472,16 +513,18 @@ Level.prototype.render = function () {
         row * this.scale.y * 0.5,
         this.scale.x,
         this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
+
+        if (this.items[col + (row * this.mapSize.cols)].sprite != '') {
+          ctx.drawImage(
+            Resources.get(this.items[col + (row * this.mapSize.cols)].sprite),
+            col * this.scale.x + this.offset,
+            row * this.scale.y * 0.5 - (this.scale.y * 0.20),
+            this.scale.x,
+            this.scale.y);
+          }
+
     }
   }
-
-  // TEMP render Selector.
-  // TODO refactor to draw all other objects to screen.
-  ctx.drawImage(Resources.get(rowImages[3]),
-    (this.mapSize.cols - 1) * this.scale.x + this.offset,
-    0 - this.scale.y * 0.25,
-    this.scale.x,
-    this.scale.y);
 };
 
 // Now instantiate your objects.
