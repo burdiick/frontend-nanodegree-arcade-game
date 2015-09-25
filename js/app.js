@@ -6,28 +6,39 @@ var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 600;
 var globalState = 'startMenu';
 
-var Game = function() {
+var Game = function () {
   this.startMenu = new Menu(1);
   this.level = '';
   this.ui = new UserInterface();
 }
 
 var menus = {
-  'menu': [
-    {'text': 'Title Menu', 'x': 10, 'y': 10},
-    {'text': "Chipper's Challenge", 'x': 300, 'y': 100},
-    {'text': 'Levels', 'x': 300, 'y': 150}
-  ]
+  'menu': [{
+    'text': 'Title Menu',
+    'x': 10,
+    'y': 10
+  }, {
+    'text': "Chipper's Challenge",
+    'x': 300,
+    'y': 100
+  }, {
+    'text': 'Levels',
+    'x': 300,
+    'y': 150
+  }]
 }
 
 var Menu = function (number) {
   this.menu = menus.menu;
-  this.levels = levels.level.map( function (level) {
+  this.levels = levels.level.map(function (level) {
     //console.log(level.number, 'level');
     return level.number;
   });
   this.hitBoxes = [];
-  this.levelListBox = {'x': 0, 'y': 0};
+  this.levelListBox = {
+    'x': 0,
+    'y': 0
+  };
 
   this.boxWidth = scale((SCALE_WIDTH * 0.75));
   this.boxHeight = (this.boxWidth / 5) * 4;
@@ -36,9 +47,9 @@ var Menu = function (number) {
   this.levelListBox.x = scale(300) - (this.boxWidth / 2);
   this.levelListBox.y = 200;
 
-  for(var i = 0; i < 4; i++) {
-    for(var f = 0; f < 5; f++) {
-      if(this.levels.length > (i * 5) + f) {
+  for (var i = 0; i < 4; i++) {
+    for (var f = 0; f < 5; f++) {
+      if (this.levels.length > (i * 5) + f) {
         //console.log(f, i);
         this.levels[f] = {
           'text': {
@@ -75,9 +86,9 @@ Menu.prototype.renderStartMenu = function () {
 
   ctx.save();
   ctx.translate(this.levelListBox.x, this.levelListBox.y);
-  for(var i = 0; i < 4; i++) {
-    for(var f = 0; f < 5; f++) {
-      if(this.levels.length > (i * 5) + f) {
+  for (var i = 0; i < 4; i++) {
+    for (var f = 0; f < 5; f++) {
+      if (this.levels.length > (i * 5) + f) {
         ctx.drawImage(Resources.get('images/Star.png'), this.buttonWidth * f, (this.buttonWidth * 1.59) * i - this.buttonHeight * 0.5, this.buttonWidth, this.buttonWidth * 1.5);
 
         game.ui.drawText(this.levels[f].text, 'center', 'center', 'black', false, 'h1');
@@ -97,7 +108,7 @@ Menu.prototype.renderStartMenu = function () {
 }
 
 var UserInterface = function (level) {
-  if(level) {
+  if (level) {
     this.lives = {
       'label': 'Lives: ',
       'text': level.player.lives,
@@ -125,7 +136,6 @@ var UserInterface = function (level) {
       'total': level.gems.total
     }
   }
-
 }
 
 UserInterface.prototype.render = function () {
@@ -165,7 +175,7 @@ UserInterface.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
   ctx.textAlign = tl;
   ctx.textBaseline = bl
 
-  if(bg) {
+  if (bg) {
     ctx.save();
     this.setFont('shadowOff');
     ctx.fillStyle = "#1F1F1F";
@@ -183,15 +193,15 @@ UserInterface.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
 
   game.ui.setFont(font);
 
-    if (obj.label) {
-      game.ui.setFont('h2');
-      ctx.fillText(obj.label, obj.x, obj.y);
-      game.ui.setFont(font);
-      ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
-    } else {
-      //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
-      ctx.fillText(obj.text, scale(obj.x), obj.y);
-    }
+  if (obj.label) {
+    game.ui.setFont('h2');
+    ctx.fillText(obj.label, obj.x, obj.y);
+    game.ui.setFont(font);
+    ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
+  } else {
+    //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
+    ctx.fillText(obj.text, scale(obj.x), obj.y);
+  }
   ctx.restore();
 }
 
@@ -334,11 +344,11 @@ Player.prototype.handleInput = function (key) {
   this.prevY = this.y;
   if (key === 'left' && this.getX() > 0) {
     this.x = this.setX(this.getX() - 1);
-  } else if (key === 'right' && this.getX() <game.level.mapSize.cols - 1) {
+  } else if (key === 'right' && this.getX() < game.level.mapSize.cols - 1) {
     this.x = this.setX(this.getX() + 1);
   } else if (key === 'up' && this.getY() > 0) {
     this.y = this.setY(this.getY() - 1);
-  } else if (key === 'down' && this.getY() + 1 <game.level.mapSize.rows - 1) {
+  } else if (key === 'down' && this.getY() + 1 < game.level.mapSize.rows - 1) {
     this.y = this.setY(this.getY() + 1);
   }
 };
@@ -494,24 +504,28 @@ var Level = function (number) {
   this.items = level.items.map(function (item, index) {
     var sprite = '';
     switch (item) {
-      case 1:
-        sprite = 'images/Rock.png';
-        break;
-      case 2:
-        sprite = 'images/gem-blue.png';
-        break;
-      case 7:
-        sprite = 'images/Selector.png'
-        break;
-      default:
+    case 1:
+      sprite = 'images/Rock.png';
+      break;
+    case 2:
+      sprite = 'images/gem-blue.png';
+      break;
+    case 7:
+      sprite = 'images/Selector.png'
+      break;
+    default:
     }
     var y = 0;
     var x = index % level.mapSize.cols;
-    if ( index >= level.mapSize.cols) {
-      y = Math.floor(index/level.mapSize.cols);
+    if (index >= level.mapSize.cols) {
+      y = Math.floor(index / level.mapSize.cols);
     }
 
-    return new Item({'item': item, 'x': x, 'y': y}, scale, sprite, offset);
+    return new Item({
+      'item': item,
+      'x': x,
+      'y': y
+    }, scale, sprite, offset);
   });
 }
 
@@ -552,14 +566,14 @@ Level.prototype.render = function () {
         this.scale.x,
         this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
 
-        if (this.items[col + (row * this.mapSize.cols)].sprite != '') {
-          ctx.drawImage(
-            Resources.get(this.items[col + (row * this.mapSize.cols)].sprite),
-            col * this.scale.x + this.offset,
-            row * this.scale.y * 0.5 - (this.scale.y * 0.20),
-            this.scale.x,
-            this.scale.y);
-          }
+      if (this.items[col + (row * this.mapSize.cols)].sprite != '') {
+        ctx.drawImage(
+          Resources.get(this.items[col + (row * this.mapSize.cols)].sprite),
+          col * this.scale.x + this.offset,
+          row * this.scale.y * 0.5 - (this.scale.y * 0.20),
+          this.scale.x,
+          this.scale.y);
+      }
     }
   }
 };
@@ -583,13 +597,13 @@ document.addEventListener('keyup', function (e) {
   //console.log(e.keyCode);
   //console.log(allowedKeys[e.keyCode]);
   switch (globalState) {
-    case 'run':
-     game.level.player.handleInput(allowedKeys[e.keyCode]);
-      break;
-    case 'startMenu':
-      //do something
-      break;
-    default:
+  case 'run':
+    game.level.player.handleInput(allowedKeys[e.keyCode]);
+    break;
+  case 'startMenu':
+    //do something
+    break;
+  default:
     //do something else
   }
 });
@@ -599,15 +613,15 @@ function scale(value) {
 }
 
 document.addEventListener('mousedown', function (e) {
-  switch(globalState) {
-    case 'startMenu':
-     game.startMenu.levels.forEach( function (box) {
-        if(e.layerX < box.x + box.width +game.startMenu.levelListBox.x && e.layerX > box.x +game.startMenu.levelListBox.x) {
-          if(e.layerY < box.y + box.height +game.startMenu.levelListBox.y && e.layerY > box.y +game.startMenu.levelListBox.y) {
-           game.startMenu.levelButtonClicked(box.text.text);
-          }
+  switch (globalState) {
+  case 'startMenu':
+    game.startMenu.levels.forEach(function (box) {
+      if (e.layerX < box.x + box.width + game.startMenu.levelListBox.x && e.layerX > box.x + game.startMenu.levelListBox.x) {
+        if (e.layerY < box.y + box.height + game.startMenu.levelListBox.y && e.layerY > box.y + game.startMenu.levelListBox.y) {
+          game.startMenu.levelButtonClicked(box.text.text);
         }
-      });
+      }
+    });
     break;
   }
 
