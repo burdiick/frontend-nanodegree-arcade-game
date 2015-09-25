@@ -71,7 +71,34 @@ var Engine = (function (global) {
         }
       }
     });
+    game.level.items.forEach( function (item) {
+      if(item.sprite != ''){
+        if (game.level.player.x + (item.scale.x / 2) < item.x + item.scale.x && game.level.player.x + (item.scale.x / 2) > item.x) {
+          if (game.level.player.y + (item.scale.x / 2) < item.y + item.scale.x && game.level.player.y + (item.scale.x / 2) > item.y) {
+            //game.level.player.lives--;
+            console.log("successfull colliision!");
+            // TODO REPLACE WITH FUNCTION
+            console.log(item);
+            if (item.item == 2) {
+              item.sprite = '';
+            }
 
+            if (item.item == 1) {
+              game.level.player.x = game.level.player.prevX;
+              game.level.player.y = game.level.player.prevY;
+            }
+            if (item.item == 7) {
+              console.log(" test", game.level.levelNumber, levels.level.length);
+              if (game.level.levelNumber < levels.level.length) {
+                game.level = new Level(game.level.levelNumber + 1);
+              } else {
+                game.level = new Level(1);
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   function updateEntities(dt) {

@@ -61,7 +61,7 @@ var Menu = function (number) {
 
 Menu.prototype.levelButtonClicked = function (number) {
   game.level = new Level(number);
-  game.ui = new UserInterface(3,game.level.helpText,game.level.levelNumber);
+  game.ui = new UserInterface(game.level);
   globalState = 'run';
 }
 
@@ -91,25 +91,28 @@ Menu.prototype.renderStartMenu = function () {
 
 }
 
-var UserInterface = function (lives, help, num) {
-  this.lives = {
-    'label': 'Lives: ',
-    'text': lives,
-    'x': 10,
-    'y': 60
-  };
-  this.help = {
-    'label': 'Goal: ',
-    'text': help,
-    'x': 10,
-    'y': 560
-  };
-  this.number = {
-    'label': 'Level: ',
-    'text': num,
-    'x': 10,
-    'y': 30
-  };
+var UserInterface = function (level) {
+  if(level) {
+    this.lives = {
+      'label': 'Lives: ',
+      'text': level.player.lives,
+      'x': 10,
+      'y': 60
+    };
+    this.help = {
+      'label': 'Goal: ',
+      'text': level.helpText,
+      'x': 10,
+      'y': 560
+    };
+    this.number = {
+      'label': 'Level: ',
+      'text': level.number,
+      'x': 10,
+      'y': 30
+    };
+  }
+
 }
 
 UserInterface.prototype.render = function () {
@@ -231,6 +234,7 @@ LevelObject.prototype.getY = function () {
 var Item = function (item, scale, sprite, offset) {
   LevelObject.call(this, item, scale, sprite, offset);
   this.y = this.y - scale.y * 0.10;
+  this.item = item.item;
 }
 Item.prototype = Object.create(LevelObject.prototype);
 Item.prototype.constructor = Item;
@@ -296,6 +300,8 @@ var Player = function (player, scale, offset) {
   this.lives = 3;
   this.initX = this.x;
   this.initY = this.y;
+  this.prevX = this.x;
+  this.prevY = this.y;
 };
 Player.prototype = Object.create(LevelObject.prototype);
 Player.prototype.constructor = Player;
@@ -305,6 +311,8 @@ Player.prototype.update = function () {
 };
 
 Player.prototype.handleInput = function (key) {
+  this.prevX = this.x;
+  this.prevY = this.y;
   if (key === 'left' && this.getX() > 0) {
     this.x = this.setX(this.getX() - 1);
   } else if (key === 'right' && this.getX() <game.level.mapSize.cols - 1) {
@@ -375,9 +383,14 @@ var levels = {
     }],
     'player': { // Data to set player location for map
       'x': 2,
-      'y': 5,
+      'y': 5
     },
-    'helpText': 'Navigate to the water. Watch out for bugs!'
+    'completed': 0,
+    'gems': {
+      'collected': 0,
+      'total': 3
+    },
+    'helpText': 'Reach the Exit. Watch out for bugs!'
   }, {
     'number': 2, // Level number
     'mapSize': { // Size of map in squares
@@ -385,38 +398,38 @@ var levels = {
       'cols': 10
     },
     'map': [ // Array holding map layout.
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0, 0, 0, 1, 1, 1, 1, 0, 0, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 2, 2, 1, 2, 2, 2, 1, 1, 2,
-      2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-      2, 2, 2, 2, 1, 2, 2, 2, 2, 2,
-      1, 1, 2, 2, 1, 2, 2, 1, 1, 2,
-      1, 1, 2, 2, 2, 2, 2, 2, 2, 2
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 2,
+      2, 1, 1, 2, 1, 2, 2, 2, 2, 2,
+      2, 2, 1, 2, 1, 2, 1, 1, 1, 2,
+      2, 2, 1, 2, 2, 2, 2, 2, 2, 2
     ],
     'items': [ // Array holding map layout.
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 2, 2, 1, 2, 2, 2, 1, 1, 2,
-      2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-      2, 2, 2, 2, 1, 2, 2, 2, 2, 2,
-      1, 1, 2, 2, 1, 2, 2, 1, 1, 2,
-      1, 1, 2, 2, 2, 2, 2, 2, 2, 2
+      0, 0, 0, 0, 2, 2, 0, 0, 0, 7,
+      1, 1, 1, 0, 1, 1, 0, 1, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 2, 1, 0, 0, 0, 0, 0,
+      0, 0, 1, 2, 1, 0, 1, 1, 1, 0,
+      0, 0, 1, 2, 0, 0, 0, 0, 0, 0
     ],
     'enemies': [{ // Data to instantiate enemies
       'type': 'red-bug', // Enemy type
       'speed': 5, // Movement speed
       'x': 0,
-      'y': 3,
+      'y': 2,
       'path': [{ // Array of grid locations to use as waypoints
         'x': 0,
-        'y': 3
+        'y': 2
       }, {
-        'x': 4,
-        'y': 3
+        'x': 9,
+        'y': 2
       }]
     }, {
       'type': 'red-bug',
-      'speed': 5,
+      'speed': 10,
       'x': 9,
       'y': 6,
       'path': [{
@@ -427,15 +440,20 @@ var levels = {
         'y': 6
       }, {
         'x': 5,
-        'y': 2
+        'y': 4
       }, {
         'x': 9,
-        'y': 2
+        'y': 4
       }],
     }],
     'player': { // Data to set player location for map
-      'x': 2,
+      'x': 0,
       'y': 6
+    },
+    'completed': 0,
+    'gems': {
+      'collected': 0,
+      'total': 5
     },
     'helpText': 'Collet all gems and reach the goal!'
   }]
@@ -457,7 +475,8 @@ var Level = function (number) {
   });
   this.player = new Player(level.player, scale, this.offset);
   this.helpText = level.helpText;
-  this.items = level.items.map(function (item) {
+  this.gems = level.gems;
+  this.items = level.items.map(function (item, index) {
     var sprite = '';
     switch (item) {
       case 1:
@@ -471,10 +490,14 @@ var Level = function (number) {
         break;
       default:
     }
-    console.log(sprite, "in switch", item);
-    return new Item(item, scale, sprite, offset);
-  });
+    var y = 0;
+    var x = index % level.mapSize.cols;
+    if ( index >= level.mapSize.cols) {
+      y = Math.floor(index/level.mapSize.cols);
+    }
 
+    return new Item({'item': item, 'x': x, 'y': y}, scale, sprite, offset);
+  });
 }
 
 // Scale all objects to fit screen
@@ -522,7 +545,6 @@ Level.prototype.render = function () {
             this.scale.x,
             this.scale.y);
           }
-
     }
   }
 };
