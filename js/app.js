@@ -23,7 +23,7 @@ var menus = {
 var Menu = function (number) {
   this.menu = menus.menu;
   this.levels = levels.level.map( function (level) {
-    console.log(level.number, 'level');
+    //console.log(level.number, 'level');
     return level.number;
   });
   this.hitBoxes = [];
@@ -81,6 +81,11 @@ Menu.prototype.renderStartMenu = function () {
         ctx.drawImage(Resources.get('images/Star.png'), this.buttonWidth * f, (this.buttonWidth * 1.59) * i - this.buttonHeight * 0.5, this.buttonWidth, this.buttonWidth * 1.5);
 
         game.ui.drawText(this.levels[f].text, 'center', 'center', 'black', false, 'h1');
+        game.ui.drawText({
+          'text': levels.level[f].gems.collected + " / " + levels.level[f].gems.total,
+          'x': f * this.buttonWidth + (this.buttonWidth * 0.5),
+          'y': this.buttonHeight * 0.75
+        }, 'center', 'center', 'black', false, 'h5');
       } else {
         f = 5;
         i = 4;
@@ -111,6 +116,14 @@ var UserInterface = function (level) {
       'x': 10,
       'y': 30
     };
+    this.gems = {
+      'label': 'Gems: ',
+      'text': level.gems.collected + " / " + level.gems.total,
+      'x': 10,
+      'y': 90,
+      'collected': level.gems.collected,
+      'total': level.gems.total
+    }
   }
 
 }
@@ -120,6 +133,7 @@ UserInterface.prototype.render = function () {
   this.drawText(this.number, 'left', 'bottom', 'black', true, 'h1');
   this.drawText(this.lives, 'left', 'bottom', 'black', true, 'h1');
   this.drawText(this.help, 'left', 'bottom', 'black', true, 'h3');
+  this.drawText(this.gems, 'left', 'bottom', 'black', true, 'h1');
 }
 
 UserInterface.prototype.update = function (currentLevel) {
@@ -127,10 +141,15 @@ UserInterface.prototype.update = function (currentLevel) {
   if (this.number.text != currentLevel.levelNumber) {
     this.number.text = currentLevel.levelNumber;
     this.help.text = currentLevel.helpText;
+    this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
   }
   // Change lives count if different
   if (this.lives.text != currentLevel.player.lives) {
     this.lives.text = currentLevel.player.lives;
+  }
+
+  if (this.gems.collected != currentLevel.gems.collected) {
+    this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
   }
 }
 
@@ -204,7 +223,7 @@ UserInterface.prototype.setFont = function (style) {
 var LevelObject = function (object, scale, sprite, offset) {
   this.sprite = sprite;
   this.x = object.x * scale.x;
-  console.log(object.x);
+  //console.log(object.x);
   this.y = object.y * (scale.x * 0.79);
   this.scale = scale;
   this.speed = object.speed;
@@ -241,7 +260,7 @@ Item.prototype.constructor = Item;
 
 var Enemy = function (enemy, scale, offset) {
   LevelObject.call(this, enemy, scale, 'images/enemy-bug.png', offset);
-  console.log(this.x);
+  //console.log(this.x);
   this.y = this.y - scale.y * 0.10;
   this.path = enemy.path;
   this.currentWaypoint = 1;
@@ -321,10 +340,6 @@ Player.prototype.handleInput = function (key) {
     this.y = this.setY(this.getY() - 1);
   } else if (key === 'down' && this.getY() + 1 <game.level.mapSize.rows - 1) {
     this.y = this.setY(this.getY() + 1);
-  } else if (key === '1' &&game.level.levelNumber != 1) {
-   game.level = new Level(1);
-  } else if (key === '2' &&game.level.levelNumber != 2) {
-   game.level = new Level(2);
   }
 };
 
@@ -470,7 +485,7 @@ var Level = function (number) {
   var offset = (CANVAS_WIDTH - (this.mapSize.cols * this.scale.x)) / 2;
   this.offset = offset;
   this.enemies = level.enemies.map(function (enemy) {
-    console.log(scale);
+    //console.log(scale);
     return new Enemy(enemy, scale, offset);
   });
   this.player = new Player(level.player, scale, this.offset);
@@ -565,8 +580,8 @@ document.addEventListener('keyup', function (e) {
     49: '1',
     50: '2'
   };
-  console.log(e.keyCode);
-  console.log(allowedKeys[e.keyCode]);
+  //console.log(e.keyCode);
+  //console.log(allowedKeys[e.keyCode]);
   switch (globalState) {
     case 'run':
      game.level.player.handleInput(allowedKeys[e.keyCode]);
