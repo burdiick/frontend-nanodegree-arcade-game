@@ -6,107 +6,170 @@ var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 600;
 var globalState = 'startMenu';
 
+var menus = {
+  'start': [{
+      'type': 'text',
+      'text': 'Title Menu',
+      'font': 'h5',
+      'tl': 'left',
+      'bl': 'top',
+      'sdw': 'black',
+      'bg': false,
+      'x': 10,
+      'y': 10
+    }, {
+      'type': 'text',
+      'text': "Chipper's Challenge",
+      'font': 'h1',
+      'tl': 'center',
+      'bl': 'top',
+      'sdw': 'black',
+      'bg': false,
+      'x': 300,
+      'y': 100
+    }, {
+      'type': 'text',
+      'text': 'Levels',
+      'font': 'h2',
+      'tl': 'center',
+      'bl': 'top',
+      'sdw': 'black',
+      'bg': false,
+      'x': 300,
+      'y': 150
+    }, {
+      'type': 'levelList',
+      'text': '',
+      'font': 'h5',
+      'tl': 'center',
+      'bl': 'center',
+      'sdw': 'black',
+      'bg': false,
+      'x': 150,
+      'y': 250,
+      'width': 300,
+      'height': 300,
+      'itemsWide': 4,
+      'itemsTall': 4
+    }
+  ],
+  'done': [{
+      'type': 'text',
+      'text': 'Done Menu',
+      'font': 'h5',
+      'tl': 'left',
+      'bl': 'top',
+      'sdw': 'black',
+      'bg': false,
+      'x': 10,
+      'y': 10
+    }, {
+      'type': 'text',
+      'text': "Level Completed!",
+      'font': 'h1',
+      'tl': 'left',
+      'bl': 'top',
+      'sdw': 'black',
+      'bg': false,
+      'x': 300,
+      'y': 100
+    }, {
+      'type': 'button',
+      'text': "Restart",
+      'font': 'h1',
+      'tl': 'left',
+      'bl': 'top',
+      'sdw': 'black',
+      'x': 200,
+      'y': 300,
+      'width': 100,
+      'height': 75
+    }, {
+      'type': 'button',
+      'text': "Next",
+      'font': 'h1',
+      'tl': 'left',
+      'bl': 'top',
+      'sdw': 'black',
+      'x': 400,
+      'y': 300,
+      'width': 100,
+      'height': 75
+    }
+  ]
+};
+
 var Game = function () {
-  this.startMenu = new Menu(1);
+  this.startMenu = new Menu(menus.start);
   this.level = '';
   this.ui = new UserInterface();
 }
 
-var menus = {
-  'menu': [
-    {'start': [{
-      'text': 'Title Menu',
-      'x': 10,
-      'y': 10
-      }, {
-      'text': "Chipper's Challenge",
-      'x': 300,
-      'y': 100
-      }, {
-      'text': 'Levels',
-      'x': 300,
-      'y': 150
-    }]
-  },
-    {'done': [{
-      'text': 'Done Menu',
-      'x': 10,
-      'y': 10
-      }, {
-      'text': "Level Completed!",
-      'x': 300,
-      'y': 100
-      }, {
-      'text': "Restart",
-      'x': 200,
-      'y': 300
-      }, {
-      'text': "Next",
-      'x': 400,
-      'y': 300
-    }]
-  }]
-};
-
-var MenuTemp = function (menu) {
-  this.items = menu.items;
+var Menu = function (menu) {
+  this.items = menu;
   this.name = menu.name;
   this.bgColor = menu.bgcolor;
+  console.log(this.items);
+  this.list = this.setListItems(this.items[3], levels.level);
+  /*for(var i = 0; i < this.items.length; i++) {
+    if(this.items[i].type === 'levelList') {
+      this.list.push(this.setListItems(this.items[i], levels.level));
+      console.log(this.setListItems(this.items[i], levels.level));
+    }
+  }*/
+
+  console.log(this.list, "finished");
 }
 
-Menu.prototype.render = function () {
-  this.items.forEach( function (item) {
+Menu.prototype.setListItems = function (original, items) {
+  //console.log(original, items);
+  return items.map( function (item) {
+    console.log(items);
+    return {
+      'type': 'button',
+      'text': item.number,
+      'tl': original.tl,
+      'bl': original.bl,
+      'sdw': original.sdw,
+      'font': original.font,
+      'x': 0,
+      'y': 0,
+      'width': scale(original.width) / original.itemsWide,
+      'height': scale(original.height) / original.itemsTall};
+  });
+}
 
+
+Menu.prototype.render = function () {
+  //console.log(this.items);
+  ctx.fillStyle = "#6ad8e3";
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  this.items.forEach( function (item) {
     switch(item.type) {
       case 'text':
-        this.drawText(item.text, item.tl, item.bl, item.shadow, item.bg, item.font);
+      case 'button':
+        game.startMenu.drawText(item);
         break;
       case 'icon':
         ctx.drawImage(Resources.get(item.image), item.x, item.y, item.width, item.height);
         break;
+      case 'levelList':
+      ctx.save();
+      ctx.translate(item.x, item.y);
+        this.list.forEach( function (obj, index) {
+          console.log(item.itemsWide);
+          obj.x = obj.width * (index % item.itemsWide);
+          console.log(obj.x);
+          if(index >= item.itemsWide) {
+            obj.y = obj.height * Math.floor(index / item.itemsTall);
+          }
+          //ctx.translate(item.x + () * obj.width, item.y + y * obj.height);
+          this.drawText(obj);
+        }, this);
+          ctx.restore();
+        break;
     }
-  });
-}
-
-var Menu = function (number) {
-  this.menu = menus.menu[number - 1];
-  this.levels = levels.level.map(function (level) {
-    //console.log(level.number, 'level');
-    return level.number;
-  });
-  this.levelListBox = {
-    'x': 0,
-    'y': 0
-  };
-
-  this.boxWidth = scale((SCALE_WIDTH * 0.75));
-  this.boxHeight = (this.boxWidth / 5) * 4;
-  this.buttonWidth = (this.boxWidth / 5);
-  this.buttonHeight = this.boxHeight / 4;
-  this.levelListBox.x = scale(300) - (this.boxWidth / 2);
-  this.levelListBox.y = 200;
-
-  for (var i = 0; i < 4; i++) {
-    for (var f = 0; f < 5; f++) {
-      if (this.levels.length > (i * 5) + f) {
-        //console.log(f, i);
-        this.levels[f] = {
-          'text': {
-            'text': this.levels[f],
-            'x': this.buttonWidth * f + (this.buttonWidth / 2),
-            'y': this.buttonHeight * i + (this.buttonHeight / 2)
-          },
-          'x': this.buttonWidth * f,
-          'y': this.buttonHeight * i,
-          'width': this.buttonWidth,
-          'height': this.buttonHeight
-        }
-      } else {
-        f = 5;
-        i = 4;
-      }
-    }
-  }
+  }, this);
 }
 
 Menu.prototype.levelButtonClicked = function (number) {
@@ -125,8 +188,7 @@ Menu.prototype.renderDoneMenu = function () {
 }
 
 Menu.prototype.renderStartMenu = function () {
-  ctx.fillStyle = "#6ad8e3";
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
   //console.log(this.menu.start[0]);
   game.ui.drawText(this.menu.start[0], 'left', 'top', 'black', false, 'h5');
   game.ui.drawText(this.menu.start[1], 'center', 'top', 'black', false, 'h1');
@@ -213,7 +275,7 @@ UserInterface.prototype.update = function (currentLevel) {
 
 // Takes agame.ui item object with .label, .text, and .x and .y locations
 Menu.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
-  if(typeof tl !== 'undefined') {
+  if(!tl) {
     // Render background gray box
     if(obj.label) {
       this.setFont('h2');
@@ -235,67 +297,70 @@ Menu.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
       ctx.restore();
     }
 
-    if (obj.shadow != 'transparent') {
+    if (obj.sdw != 'transparent') {
       ctx.shadowBlur = 1;
       ctx.shadowOffsetX = 2;
       ctx.shadowOffsetY = 2;
-      ctx.shadowColor = obj.shadow;
+      ctx.shadowColor = obj.sdw;
     }
 
     this.setFont(obj.font);
 
     if (obj.label) {
       this.setFont('h2');
-      ctx.fillText(obj.label, obj.x, obj.y);
+      ctx.fillText(obj.label, scale(obj.x), scale(obj.y));
       this.setFont(obj.font);
+      ctx.fillText(obj.text, scale(obj.x) + labelWidth, scale(obj.y));
+    } else {
+      //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
+      ctx.fillText(obj.text, scale(obj.x), scale(obj.y));
+    }
+    ctx.restore();
+  } else {
+    // Render background gray box
+    if(obj.label) {
+      this.setFont('h2');
+      var labelWidth = ctx.measureText(obj.label).width;
+    }
+    this.setFont(font);
+    var textWidth = ctx.measureText(obj.text).width;
+    //console.log(test);
+    ctx.save();
+    ctx.textAlign = tl;
+    ctx.textBaseline = bl
+
+    if (bg) {
+      ctx.save();
+      this.setFont('shadowOff');
+      ctx.fillStyle = "#1F1F1F";
+      ctx.globalAlpha = 0.6;
+      ctx.fillRect(scale(obj.x - 20), scale(obj.y - 20), labelWidth + textWidth + 10, 20);
+      ctx.restore();
+    }
+
+    if (shadow != 'transparent') {
+      ctx.shadowBlur = 1;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.shadowColor = shadow;
+    }
+
+    this.setFont(font);
+
+    if (obj.label) {
+      this.setFont('h2');
+      ctx.fillText(obj.label, obj.x, obj.y);
+      this.setFont(font);
       ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
     } else {
       //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
       ctx.fillText(obj.text, scale(obj.x), obj.y);
     }
     ctx.restore();
+
   }
 
-  // Render background gray box
-  if(obj.label) {
-    this.setFont('h2');
-    var labelWidth = ctx.measureText(obj.label).width;
-  }
-  this.setFont(font);
-  var textWidth = ctx.measureText(obj.text).width;
-  //console.log(test);
-  ctx.save();
-  ctx.textAlign = tl;
-  ctx.textBaseline = bl
 
-  if (bg) {
-    ctx.save();
-    this.setFont('shadowOff');
-    ctx.fillStyle = "#1F1F1F";
-    ctx.globalAlpha = 0.6;
-    ctx.fillRect(obj.x - 20, obj.y - 20, labelWidth + textWidth + 10, 20);
-    ctx.restore();
-  }
-
-  if (shadow != 'transparent') {
-    ctx.shadowBlur = 1;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-    ctx.shadowColor = shadow;
-  }
-
-  this.setFont(font);
-
-  if (obj.label) {
-    this.setFont('h2');
-    ctx.fillText(obj.label, obj.x, obj.y);
-    this.setFont(font);
-    ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
-  } else {
-    //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
-    ctx.fillText(obj.text, scale(obj.x), obj.y);
-  }
-  ctx.restore();
 }
 
 Menu.prototype.setFont = function (style) {
@@ -708,7 +773,7 @@ function scale(value) {
 document.addEventListener('mousedown', function (e) {
   switch (globalState) {
   case 'startMenu':
-    game.startMenu.levels.forEach(function (box) {
+    game.startMenu.list.forEach(function (box) {
       if (e.layerX < box.x + box.width + game.startMenu.levelListBox.x && e.layerX > box.x + game.startMenu.levelListBox.x) {
         if (e.layerY < box.y + box.height + game.startMenu.levelListBox.y && e.layerY > box.y + game.startMenu.levelListBox.y) {
           game.startMenu.levelButtonClicked(box.text.text);

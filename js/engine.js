@@ -142,10 +142,10 @@ var Engine = (function (global) {
       game.ui.render();
       break;
     case 'startMenu':
-      game.startMenu.renderStartMenu();
+      game.startMenu.render();
       break;
     case 'done':
-      game.startMenu.renderDoneMenu();
+      game.startMenu.render();
     default:
     }
   }
