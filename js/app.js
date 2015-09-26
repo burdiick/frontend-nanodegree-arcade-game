@@ -13,28 +13,67 @@ var Game = function () {
 }
 
 var menus = {
-  'menu': [{
-    'text': 'Title Menu',
-    'x': 10,
-    'y': 10
-  }, {
-    'text': "Chipper's Challenge",
-    'x': 300,
-    'y': 100
-  }, {
-    'text': 'Levels',
-    'x': 300,
-    'y': 150
+  'menu': [
+    {'start': [{
+      'text': 'Title Menu',
+      'x': 10,
+      'y': 10
+      }, {
+      'text': "Chipper's Challenge",
+      'x': 300,
+      'y': 100
+      }, {
+      'text': 'Levels',
+      'x': 300,
+      'y': 150
+    }]
+  },
+    {'done': [{
+      'text': 'Done Menu',
+      'x': 10,
+      'y': 10
+      }, {
+      'text': "Level Completed!",
+      'x': 300,
+      'y': 100
+      }, {
+      'text': "Restart",
+      'x': 200,
+      'y': 300
+      }, {
+      'text': "Next",
+      'x': 400,
+      'y': 300
+    }]
   }]
+};
+
+var MenuTemp = function (menu) {
+  this.items = menu.items;
+  this.name = menu.name;
+  this.bgColor = menu.bgcolor;
+}
+
+Menu.prototype.render = function () {
+  this.items.forEach( function (item) {
+
+    switch(item.type) {
+      case 'text':
+        this.drawText(item.text, item.tl, item.bl, item.shadow, item.bg, item.font);
+        break;
+      case 'icon':
+        ctx.drawImage(Resources.get(item.image), item.x, item.y, item.width, item.height);
+        break;
+    }
+  });
 }
 
 var Menu = function (number) {
-  this.menu = menus.menu;
+  this.menu = menus.menu[number - 1];
   this.levels = levels.level.map(function (level) {
     //console.log(level.number, 'level');
     return level.number;
   });
-  this.hitBoxes = [];
   this.levelListBox = {
     'x': 0,
     'y': 0
@@ -76,13 +115,22 @@ Menu.prototype.levelButtonClicked = function (number) {
   globalState = 'run';
 }
 
+Menu.prototype.renderDoneMenu = function () {
+  ctx.fillStyle = '#6ab8e3';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  game.ui.drawText(this.menu.done[0], 'left', 'top', 'black', false, 'h5');
+  game.ui.drawText(this.menu.done[1], 'center', 'top', 'black', false, 'h1');
+
+}
+
 Menu.prototype.renderStartMenu = function () {
   ctx.fillStyle = "#6ad8e3";
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-  game.ui.drawText(this.menu[0], 'left', 'top', 'black', false, 'h5');
-  game.ui.drawText(this.menu[1], 'center', 'top', 'black', false, 'h1');
-  game.ui.drawText(this.menu[2], 'center', 'top', 'black', false, 'h2');
+  //console.log(this.menu.start[0]);
+  game.ui.drawText(this.menu.start[0], 'left', 'top', 'black', false, 'h5');
+  game.ui.drawText(this.menu.start[1], 'center', 'top', 'black', false, 'h1');
+  game.ui.drawText(this.menu.start[2], 'center', 'top', 'black', false, 'h2');
 
   ctx.save();
   ctx.translate(this.levelListBox.x, this.levelListBox.y);
@@ -164,10 +212,55 @@ UserInterface.prototype.update = function (currentLevel) {
 }
 
 // Takes agame.ui item object with .label, .text, and .x and .y locations
-UserInterface.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
+Menu.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
+  if(typeof tl !== 'undefined') {
+    // Render background gray box
+    if(obj.label) {
+      this.setFont('h2');
+      var labelWidth = ctx.measureText(obj.label).width;
+    }
+    this.setFont(font);
+    var textWidth = ctx.measureText(obj.text).width;
+    //console.log(test);
+    ctx.save();
+    ctx.textAlign = obj.tl;
+    ctx.textBaseline = obj.bl
+
+    if (obj.bg) {
+      ctx.save();
+      this.setFont('shadowOff');
+      ctx.fillStyle = "#1F1F1F";
+      ctx.globalAlpha = 0.6;
+      ctx.fillRect(obj.x - 20, obj.y - 20, labelWidth + textWidth + 10, 20);
+      ctx.restore();
+    }
+
+    if (obj.shadow != 'transparent') {
+      ctx.shadowBlur = 1;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.shadowColor = obj.shadow;
+    }
+
+    this.setFont(obj.font);
+
+    if (obj.label) {
+      this.setFont('h2');
+      ctx.fillText(obj.label, obj.x, obj.y);
+      this.setFont(obj.font);
+      ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
+    } else {
+      //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
+      ctx.fillText(obj.text, scale(obj.x), obj.y);
+    }
+    ctx.restore();
+  }
+
   // Render background gray box
-  this.setFont('h2');
-  var labelWidth = ctx.measureText(obj.label).width;
+  if(obj.label) {
+    this.setFont('h2');
+    var labelWidth = ctx.measureText(obj.label).width;
+  }
   this.setFont(font);
   var textWidth = ctx.measureText(obj.text).width;
   //console.log(test);
@@ -191,12 +284,12 @@ UserInterface.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
     ctx.shadowColor = shadow;
   }
 
-  game.ui.setFont(font);
+  this.setFont(font);
 
   if (obj.label) {
-    game.ui.setFont('h2');
+    this.setFont('h2');
     ctx.fillText(obj.label, obj.x, obj.y);
-    game.ui.setFont(font);
+    this.setFont(font);
     ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
   } else {
     //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
@@ -205,7 +298,7 @@ UserInterface.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
   ctx.restore();
 }
 
-UserInterface.prototype.setFont = function (style) {
+Menu.prototype.setFont = function (style) {
   // Set ctx to required style.
   // TODO there has to be a better way to do this.
   switch (style) {
@@ -622,6 +715,10 @@ document.addEventListener('mousedown', function (e) {
         }
       }
     });
+    break;
+  case 'done':
+    //if (e.layerX < game.startMenu.menu.start[3].x +  )
+
     break;
   }
 
