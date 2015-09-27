@@ -104,8 +104,8 @@ var Engine = (function (global) {
             if (item.item == 7) {
               if(game.level.gems.collected == game.level.gems.total) {
                 game.level.gems.collected = 0;
-                globalState = 'startMenu';
-                game.menu = new StartMenu();
+                globalState = 'done';
+                game.menu = new DoneMenu();
                 //reset();
                 return true;
               }
@@ -151,7 +151,7 @@ var Engine = (function (global) {
       game.menu.startMenuRender();
       break;
     case 'done':
-      game.menu.render();
+      game.menu.renderDoneMenu();
     default:
     }
   }
