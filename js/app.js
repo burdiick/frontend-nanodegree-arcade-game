@@ -165,8 +165,10 @@ var menus = {
  *---------------------------------------------------------
  */
 var Menu = function (menu) {
-  this.items = menu;
-  this.name = menu.name;
+  this.menuObj = menu;
+  this.items = '';
+  //this.name = menu.name;
+  console.log(this.items, 'in Menu constructor');
 }
 
 Menu.prototype.setListItems = function (original, items) {
@@ -203,7 +205,7 @@ Menu.prototype.setListItems = function (original, items) {
 Menu.prototype.render = function () {
   //console.log(this.items);
 
-  this.items.forEach(function (item) {
+  this.menuObj.forEach(function (item) {
     switch (item.type) {
     case 'text':
     case 'button':
@@ -225,11 +227,11 @@ Menu.prototype.render = function () {
 }
 
 Menu.prototype.levelButtonClicked = function (number) {
-  console.log(number);
+  //console.log(game.level, 'first');
   game.level = new Level(number);
-  console.log(game.menu);
+  console.log(game.level, 'second, New level should be loaded');
   game.menu = new UserInterface(game.level);
-  console.log(game.menu);
+  console.log(game.level, 'third');
   globalState = 'run';
 }
 
@@ -311,7 +313,7 @@ var StartMenu = function () {
   Menu.call(this, menus.start);
 
   this.list = {};
-  this.items.forEach(function (item) {
+  this.menuObj.forEach(function (item) {
     if (item.type === 'levelList') {
       this.list = this.setListItems(item, levels.level);
     }
@@ -328,31 +330,34 @@ StartMenu.prototype.startMenuRender = function () {
 // Takes the current Level instance
 var UserInterface = function (level) {
   Menu.call(this, menus.hud);
+  //this.items = menus.hud;
+  console.log(menus.hud, 'UserInterface Constructor called');
   this.level = level;
-  this.number = {};
-  this.lives = {};
-  this.gems = {};
-  this.goal = {};
-  this.items.forEach(function (item) {
-    switch (item.text) {
-    case 'level':
-      item.text = this.level.levelNumber;
+  //this.number = {};
+  //this.lives = {};
+  //this.gems = {};
+  //this.goal = {};
+  this.menuObj.forEach(function (item) {
+    console.log(item, 'inside this.items.forEach()');
+    switch (item.label) {
+    case 'Level: ':
       this.number = item;
+      this.number.text = this.level.levelNumber;
       break;
-    case 'lives':
-      item.text = this.level.player.lives;
+    case 'Lives: ':
       this.lives = item;
+      this.lives.text = this.level.player.lives;
       break;
-    case 'gems':
-      item.text = "0" + " / " + this.level.gems.total;
+    case 'Gems: ':
       this.gems = item;
-      console.log(this.gems);
+      this.gems.text = "0" + " / " + this.level.gems.total;
       break;
-    case 'goal':
-      item.text = this.level.helpText;
+    case 'Goal: ':
       this.goal = item;
+      this.goal.text = this.level.helpText;
       break;
     }
+;
   }, this);
 }
 UserInterface.prototype = Object.create(Menu.prototype);
@@ -657,7 +662,7 @@ var levels = {
  */
 var Level = function (number) {
   var level = levels.level[number - 1];
-
+  console.log(this, 'Inside Level constructor');
   this.levelNumber = number;
   this.mapSize = level.mapSize;
   this.map = level.map;

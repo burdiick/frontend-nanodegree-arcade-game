@@ -93,8 +93,7 @@ var Engine = (function (global) {
             }
             if (item.item == 7) {
               if(game.level.gems.collected == game.level.gems.total) {
-                game.level = '';
-                game.menu = '';
+                game.level.gems.collected = 0;
                 globalState = 'startMenu';
                 game.menu = new StartMenu();
                 //reset();
@@ -158,7 +157,7 @@ var Engine = (function (global) {
   }
 
   function reset() {
-    game = new Game();
+    //game = new Game();
   }
 
   /* Go ahead and load all of the images we know we're going to need to
