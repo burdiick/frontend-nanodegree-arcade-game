@@ -168,7 +168,7 @@ var Menu = function (menu) {
   this.menuObj = menu;
   this.items = '';
   //this.name = menu.name;
-  console.log(this.items, 'in Menu constructor');
+  //console.log(this.items, 'in Menu constructor');
 }
 
 Menu.prototype.setListItems = function (original, items) {
@@ -229,9 +229,9 @@ Menu.prototype.render = function () {
 Menu.prototype.levelButtonClicked = function (number) {
   //console.log(game.level, 'first');
   game.level = new Level(number);
-  console.log(game.level, 'second, New level should be loaded');
+  //console.log(game.level, 'second, New level should be loaded');
   game.menu = new UserInterface(game.level);
-  console.log(game.level, 'third');
+  //console.log(game.level, 'third');
   globalState = 'run';
 }
 
@@ -331,14 +331,11 @@ StartMenu.prototype.startMenuRender = function () {
 var UserInterface = function (level) {
   Menu.call(this, menus.hud);
   //this.items = menus.hud;
-  console.log(menus.hud, 'UserInterface Constructor called');
+  //console.log(menus.hud, 'UserInterface Constructor called');
   this.level = level;
-  //this.number = {};
-  //this.lives = {};
-  //this.gems = {};
-  //this.goal = {};
+
   this.menuObj.forEach(function (item) {
-    console.log(item, 'inside this.items.forEach()');
+    //console.log(item, 'inside this.items.forEach()');
     switch (item.label) {
     case 'Level: ':
       this.number = item;
@@ -397,7 +394,7 @@ var LevelObject = function (object, scale, sprite, offset) {
 }
 
 LevelObject.prototype.render = function () {
-  ctx.drawImage(Resources.get(this.sprite), this.x + this.offset, this.y, this.scale.x, this.scale.y);
+  ctx.drawImage(Resources.get(this.sprite), this.x + this.offset.x, this.y + this.offset.y, this.scale.x, this.scale.y);
 }
 
 LevelObject.prototype.setX = function (multiplier) {
@@ -416,6 +413,14 @@ LevelObject.prototype.getY = function () {
   return this.y / (this.scale.x * 0.79);
 };
 
+var Block = function (block, scale, sprite, offset, walkable) {
+  LevelObject.call(this, block, scale, sprite, offset);
+  this.block = block.item;
+  this.walkable = walkable;
+}
+Block.prototype = Object.create(LevelObject.prototype);
+Block.prototype.constructor = Block;
+
 /*---------------------------------------------------------
  * Item class, used to hold Rocks, Gems, Finish points, etc.
  * TODO: take out Rocks maybe and put them in Level?
@@ -423,7 +428,7 @@ LevelObject.prototype.getY = function () {
  */
 var Item = function (item, scale, sprite, offset) {
   LevelObject.call(this, item, scale, sprite, offset);
-  this.y = this.y - scale.y * 0.10;
+  this.y = this.y - scale.y * 0.20;
   this.item = item.item;
 }
 Item.prototype = Object.create(LevelObject.prototype);
@@ -537,9 +542,9 @@ var levels = {
     },
     'map': [ // Array holding map layout.
       1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1,
+      3, 3, 1, 3, 3,
       1, 2, 2, 1, 2,
-      1, 2, 2, 2, 2,
+      3, 3, 2, 3, 3,
       1, 1, 2, 2, 1,
       1, 1, 2, 2, 1
     ],
@@ -596,9 +601,9 @@ var levels = {
       0, 0, 0, 1, 1, 1, 1, 0, 0, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 2, 2, 1, 2, 2, 2, 1, 1, 2,
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 2,
+      1, 1, 1, 1, 1, 1, 1, 3, 3, 2,
       2, 1, 1, 2, 1, 2, 2, 2, 2, 2,
-      2, 2, 1, 2, 1, 2, 1, 1, 1, 2,
+      2, 2, 1, 2, 1, 2, 3, 3, 3, 2,
       2, 2, 1, 2, 2, 2, 2, 2, 2, 2
     ],
     'items': [ // Array holding map layout.
@@ -662,29 +667,76 @@ var levels = {
  */
 var Level = function (number) {
   var level = levels.level[number - 1];
-  console.log(this, 'Inside Level constructor');
+  //console.log(this, 'Inside Level constructor');
   this.levelNumber = number;
   this.mapSize = level.mapSize;
-  this.map = level.map;
   var scale = this.setScale(); // TODO figure out how to pass 'this' into array.map()
   this.scale = scale;
-  var offset = (CANVAS_WIDTH - (this.mapSize.cols * this.scale.x)) / 2;
-  this.offset = offset;
+
+  var offsetY = 0;
+  var offsetX = 0;
+  if (this.mapSize.cols <= this.mapSize.rows) {
+    offsetX = (CANVAS_WIDTH - (this.mapSize.cols * scale.x)) / 2;
+  } else {
+    offsetY = (CANVAS_HEIGHT - (this.mapSize.rows * scale.y)) / 2;
+  }
+
+  this.offset = {'x': offsetX, 'y': offsetY};
+  //console.log(scale, 'scale');
+  this.map = level.map.map( function (obj, index) {
+    var sprite = '';
+    var walkable = true;
+    var y = 0;
+    var x = index % level.mapSize.cols;
+    if (index >= level.mapSize.cols) {
+      y = (Math.floor(index / level.mapSize.cols));
+    }
+
+    switch (obj) {
+      case 0:
+        sprite = 'images/water-block.png';
+        walkable = false;
+        break;
+      case 1:
+        sprite = 'images/stone-block.png';
+        break;
+      case 2:
+        sprite = 'images/grass-block.png';
+        break;
+      case 3:
+        sprite = 'images/stone-block.png';
+        walkable = false;
+        break;
+    }
+
+    //console.log(x, y, width, height, sprite, "obj to return");
+    return new Block ({
+      'item': obj,
+      'x': x,
+      'y': y
+      }, this.scale, sprite, this.offset, walkable);
+    //console.log(obj, 'at end of ');
+  }, this);
+
+  console.log(this.map);
+
   this.enemies = level.enemies.map(function (enemy) {
     //console.log(scale);
-    return new Enemy(enemy, scale, offset);
-  });
+    return new Enemy(enemy, scale, this.offset);
+  }, this);
   this.player = new Player(level.player, scale, this.offset);
   this.helpText = level.helpText;
   this.gems = level.gems;
   this.items = level.items.map(function (item, index) {
     var sprite = '';
+    var scaleTemp = {'x': scale.x, 'y': scale.y};
     switch (item) {
     case 1:
       sprite = 'images/Rock.png';
       break;
     case 2:
       sprite = 'images/gem-blue.png';
+      //scaleTemp = {'x': scale.x * 0.7, 'y': scale.y * 0.7};
       break;
     case 7:
       sprite = 'images/Selector.png'
@@ -693,7 +745,7 @@ var Level = function (number) {
     }
 
     var y = 0;
-    var x = index % level.mapSize.cols;
+    var x = (index % level.mapSize.cols);
     if (index >= level.mapSize.cols) {
       y = Math.floor(index / level.mapSize.cols);
     }
@@ -701,8 +753,9 @@ var Level = function (number) {
       'item': item,
       'x': x,
       'y': y
-    }, scale, sprite, offset);
-  });
+    }, scaleTemp, sprite, this.offset);
+  }, this);
+  console.log(this.items);
 }
 
 // Scale all objects to fit screen
@@ -731,27 +784,76 @@ Level.prototype.render = function () {
   // Draw background to blue color
   ctx.fillStyle = "#6ad8e3"
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  //console.log(this.map);
+  /*this.map.forEach( function (block) {
+    console.log(block);
+    if (block.image != '') {
+      if (typeof block.image === 'array') {
+        block.image.forEach( function (image) {
+          ctx.drawImage(
+            Resources.get(image),
+            block.leftCorner.x,
+            block.leftCorner.y,
+            block.width,
+            block.height * 1.5);
+        });
+      } else {
+        ctx.drawImage(
+          Resources.get(block.image),
+          block.leftCorner.x + this.offset.x,
+          block.leftCorner.y * 0.5 + this.offset.y,
+          block.scale.x,
+          block.scale.y);
+        /*ctx.drawImage(
+          Resources.get(this.items[col + (row * this.mapSize.cols)].sprite),
+          col * this.scale.x + this.offset,
+          row * this.scale.y * 0.5 - (this.scale.y * 0.20),
+          this.items[col + (row * this.mapSize.cols)].scale.x,
+          this.items[col + (row * this.mapSize.cols)].scale.y);
+      }
+    }
 
+  }, this);*/
   // Draw map to screen
-  for (var row = 0; row < this.mapSize.rows; row++) {
-    for (var col = 0; col < this.mapSize.cols; col++) {
-      ctx.drawImage(
+  this.map.forEach( function (block) {
+    console.log(block);
+    block.render();
+  })
+  this.items.forEach( function (item) {
+    if(item.sprite != '') {
+      item.render();
+    }
+
+  }, this);
+  //for (var row = 0; row < this.mapSize.rows; row++) {
+    //for (var col = 0; col < this.mapSize.cols; col++) {
+      /*ctx.drawImage(
         Resources.get(rowImages[this.map[col + (row * this.mapSize.cols)]]),
         col * this.scale.x + this.offset,
         row * this.scale.y * 0.5,
         this.scale.x,
-        this.scale.y); // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
+        this.scale.y);*/ // 0.78 and 1.59 hard coded based on image sizes. Should never change, but not ideal.
 
-      if (this.items[col + (row * this.mapSize.cols)].sprite != '') {
+
+
+      /*if (this.items[col + (row * this.mapSize.cols)].sprite != '' && this.items[col + (row * this.mapSize.cols)].sprite != 'images/gem-blue.png') {
         ctx.drawImage(
           Resources.get(this.items[col + (row * this.mapSize.cols)].sprite),
-          col * this.scale.x + this.offset,
-          row * this.scale.y * 0.5 - (this.scale.y * 0.20),
+          col * this.scale.x + this.offset.x,
+          row * this.scale.y * 0.5 - (this.scale.y * 0.20) + this.offset.y,
           this.scale.x,
           this.scale.y);
       }
-    }
-  }
+      if (this.items[col + (row * this.mapSize.cols)].sprite != '' && this.items[col + (row * this.mapSize.cols)].sprite == 'images/gem-blue.png') {
+        ctx.drawImage(
+          Resources.get(this.items[col + (row * this.mapSize.cols)].sprite),
+          col * (this.scale.x)+ this.offset.x + (this.scale.x * 0.15),
+          row * this.scale.y * 0.5 - (this.scale.y * 0.20) + (this.scale.y * 0.25) + this.offset.y,
+          this.items[col + (row * this.mapSize.cols)].scale.x,
+          this.items[col + (row * this.mapSize.cols)].scale.y);
+      }*/
+  //  }
+//  }
 };
 
 /*---------------------------------------------------------

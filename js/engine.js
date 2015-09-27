@@ -73,6 +73,16 @@ var Engine = (function (global) {
         }
       }
     });
+    game.level.map.some( function (block) {
+      if(!block.walkable) {
+        if (game.level.player.x + (block.scale.x / 2) < block.x + block.scale.x && game.level.player.x + (block.scale.x / 2) > block.x) {
+          if (game.level.player.y + (block.scale.x / 2) < block.y + block.scale.x && game.level.player.y + (block.scale.x / 2) > block.y) {
+            game.level.player.x = game.level.player.prevX;
+            game.level.player.y = game.level.player.prevY;
+          }
+        }
+      }
+    });
     game.level.items.some( function (item) {
       if(item.sprite != ''){
         if (game.level.player.x + (item.scale.x / 2) < item.x + item.scale.x && game.level.player.x + (item.scale.x / 2) > item.x) {
