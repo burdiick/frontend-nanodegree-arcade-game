@@ -6,125 +6,178 @@ var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 600;
 var globalState = 'startMenu';
 
-var menus = {
-  'start': [{
-      'type': 'text',
-      'text': 'Title Menu',
-      'font': 'h5',
-      'tl': 'left',
-      'bl': 'top',
-      'sdw': 'black',
-      'bg': false,
-      'x': 10,
-      'y': 10
-    }, {
-      'type': 'text',
-      'text': "Chipper's Challenge",
-      'font': 'h1',
-      'tl': 'center',
-      'bl': 'top',
-      'sdw': 'black',
-      'bg': false,
-      'x': 300,
-      'y': 100
-    }, {
-      'type': 'text',
-      'text': 'Levels',
-      'font': 'h2',
-      'tl': 'center',
-      'bl': 'top',
-      'sdw': 'black',
-      'bg': false,
-      'x': 300,
-      'y': 150
-    }, {
-      'type': 'levelList',
-      'text': '',
-      'font': 'h5',
-      'tl': 'center',
-      'bl': 'center',
-      'sdw': 'black',
-      'bg': false,
-      'x': 150,
-      'y': 250,
-      'width': 300,
-      'height': 300,
-      'itemsWide': 4,
-      'itemsTall': 4
-    }
-  ],
-  'done': [{
-      'type': 'text',
-      'text': 'Done Menu',
-      'font': 'h5',
-      'tl': 'left',
-      'bl': 'top',
-      'sdw': 'black',
-      'bg': false,
-      'x': 10,
-      'y': 10
-    }, {
-      'type': 'text',
-      'text': "Level Completed!",
-      'font': 'h1',
-      'tl': 'left',
-      'bl': 'top',
-      'sdw': 'black',
-      'bg': false,
-      'x': 300,
-      'y': 100
-    }, {
-      'type': 'button',
-      'text': "Restart",
-      'font': 'h1',
-      'tl': 'left',
-      'bl': 'top',
-      'sdw': 'black',
-      'x': 200,
-      'y': 300,
-      'width': 100,
-      'height': 75
-    }, {
-      'type': 'button',
-      'text': "Next",
-      'font': 'h1',
-      'tl': 'left',
-      'bl': 'top',
-      'sdw': 'black',
-      'x': 400,
-      'y': 300,
-      'width': 100,
-      'height': 75
-    }
-  ]
-};
-
+/*---------------------------------------------------------
+ * The Game class!
+ * Holds the whole game.
+ *---------------------------------------------------------
+ */
 var Game = function () {
-  this.startMenu = new Menu(menus.start);
-  this.level = '';
-  this.ui = new UserInterface();
+  var menu = new StartMenu();
+  var level = '';
 }
 
-var Menu = function (menu) {
-  this.items = menu;
-  this.name = menu.name;
-  this.bgColor = menu.bgcolor;
-  console.log(this.items);
-  this.list = this.setListItems(this.items[3], levels.level);
-  /*for(var i = 0; i < this.items.length; i++) {
-    if(this.items[i].type === 'levelList') {
-      this.list.push(this.setListItems(this.items[i], levels.level));
-      console.log(this.setListItems(this.items[i], levels.level));
-    }
-  }*/
+/*---------------------------------------------------------
+ * menus object.
+ * Holds all menu objects.
+ * Each menu object is an array of menu items.
+ *---------------------------------------------------------
+ */
+var menus = {
+  'start': [{
+    'type': 'text',
+    'text': 'Title Menu',
+    'font': 'h5',
+    'tl': 'left',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 10,
+    'y': 10
+  }, {
+    'type': 'text',
+    'text': "Chipper's Challenge",
+    'font': 'h1',
+    'tl': 'center',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 300,
+    'y': 100
+  }, {
+    'type': 'text',
+    'text': 'Levels',
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 300,
+    'y': 150
+  }, {
+    'type': 'levelList',
+    'text': '',
+    'font': 'h5',
+    'tl': 'center',
+    'bl': 'center',
+    'sdw': 'black',
+    'bg': false,
+    'x': 150,
+    'y': 250,
+    'width': 300,
+    'height': 300,
+    'itemsWide': 4,
+    'itemsTall': 4
+  }],
+  'hud': [{
+    'type': 'text',
+    'label': 'Level: ',
+    'text': 'level',
+    'font': 'h1',
+    'tl': 'left',
+    'bl': 'bottom',
+    'sdw': 'black',
+    'bg': true,
+    'x': 10,
+    'y': 50
+  }, {
+    'type': 'text',
+    'label': 'Lives: ',
+    'text': 'lives',
+    'font': 'h1',
+    'tl': 'left',
+    'bl': 'bottom',
+    'sdw': 'black',
+    'bg': true,
+    'x': 10,
+    'y': 100
+  }, {
+    'type': 'text',
+    'label': 'Gems: ',
+    'text': 'gems',
+    'font': 'h1',
+    'tl': 'left',
+    'bl': 'bottom',
+    'sdw': 'black',
+    'bg': true,
+    'x': 10,
+    'y': 150
+  }, {
+    'type': 'text',
+    'label': 'Goal: ',
+    'text': 'goal',
+    'font': 'h5',
+    'tl': 'left',
+    'bl': 'bottom',
+    'sdw': 'black',
+    'bg': true,
+    'x': 10,
+    'y': 550
+  }],
+  'done': [{
+    'type': 'text',
+    'text': 'Done Menu',
+    'font': 'h5',
+    'tl': 'left',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 10,
+    'y': 10
+  }, {
+    'type': 'text',
+    'text': "Level Completed!",
+    'font': 'h1',
+    'tl': 'left',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 300,
+    'y': 100
+  }, {
+    'type': 'button',
+    'text': "Restart",
+    'font': 'h1',
+    'tl': 'left',
+    'bl': 'top',
+    'sdw': 'black',
+    'x': 200,
+    'y': 300,
+    'width': 100,
+    'height': 75
+  }, {
+    'type': 'button',
+    'text': "Next",
+    'font': 'h1',
+    'tl': 'left',
+    'bl': 'top',
+    'sdw': 'black',
+    'x': 400,
+    'y': 300,
+    'width': 100,
+    'height': 75
+  }]
+};
 
-  console.log(this.list, "finished");
+/*---------------------------------------------------------
+ * Menu class. Prototype for all other menu classes
+ *---------------------------------------------------------
+ */
+var Menu = function (menu) {
+  var items = menu;
+  var name = menu.name;
 }
 
 Menu.prototype.setListItems = function (original, items) {
   //console.log(original, items);
-  return items.map( function (item) {
-    console.log(items);
+  return items.map(function (item, index) {
+    var width = scale(original.width) / original.itemsWide;
+    var height = scale(original.height) / original.itemsTall;
+    var x = width * (index % original.itemsWide) + scale(original.x);
+    var y = 0 + scale(original.y);
+
+    if (index >= original.itemsWide) {
+      y = height * Math.floor(index / original.itemsTall) + scale(original.y);
+    }
     return {
       'type': 'button',
       'text': item.number,
@@ -132,235 +185,96 @@ Menu.prototype.setListItems = function (original, items) {
       'bl': original.bl,
       'sdw': original.sdw,
       'font': original.font,
-      'x': 0,
-      'y': 0,
-      'width': scale(original.width) / original.itemsWide,
-      'height': scale(original.height) / original.itemsTall};
-  });
+      'x': x + (width / 2),
+      'y': y + (height / 2),
+      'leftCorner': {
+        'x': x,
+        'y': y
+      },
+      'width': width,
+      'height': height
+    };
+  }, this);
 }
-
 
 Menu.prototype.render = function () {
   //console.log(this.items);
-  ctx.fillStyle = "#6ad8e3";
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  this.items.forEach( function (item) {
-    switch(item.type) {
-      case 'text':
-      case 'button':
-        game.startMenu.drawText(item);
-        break;
-      case 'icon':
-        ctx.drawImage(Resources.get(item.image), item.x, item.y, item.width, item.height);
-        break;
-      case 'levelList':
-      ctx.save();
-      ctx.translate(item.x, item.y);
-        this.list.forEach( function (obj, index) {
-          console.log(item.itemsWide);
-          obj.x = obj.width * (index % item.itemsWide);
-          console.log(obj.x);
-          if(index >= item.itemsWide) {
-            obj.y = obj.height * Math.floor(index / item.itemsTall);
-          }
-          //ctx.translate(item.x + () * obj.width, item.y + y * obj.height);
-          this.drawText(obj);
-        }, this);
-          ctx.restore();
-        break;
+
+  this.items.forEach(function (item) {
+    switch (item.type) {
+    case 'text':
+    case 'button':
+      this.drawText(item);
+      break;
+    case 'icon':
+      ctx.drawImage(Resources.get(item.image), item.x, item.y, item.width, item.height);
+      break;
+    case 'levelList':
+      this.list.forEach(function (obj, index) {
+        ctx.save();
+        //console.log(obj.x, obj.y, 'object');
+        this.drawText(obj);
+        //ctx.restore();
+      }, this);
+
+      break;
     }
   }, this);
 }
 
 Menu.prototype.levelButtonClicked = function (number) {
+  console.log(number);
+  game.level = '';
   game.level = new Level(number);
-  game.ui = new UserInterface(game.level);
+  console.log(game.level);
+  game.menu = '';
+  game.menu = new UserInterface(game.level);
+  console.log(game.menu);
   globalState = 'run';
 }
 
-Menu.prototype.renderDoneMenu = function () {
-  ctx.fillStyle = '#6ab8e3';
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-  game.ui.drawText(this.menu.done[0], 'left', 'top', 'black', false, 'h5');
-  game.ui.drawText(this.menu.done[1], 'center', 'top', 'black', false, 'h1');
-
-}
-
-Menu.prototype.renderStartMenu = function () {
-
-  //console.log(this.menu.start[0]);
-  game.ui.drawText(this.menu.start[0], 'left', 'top', 'black', false, 'h5');
-  game.ui.drawText(this.menu.start[1], 'center', 'top', 'black', false, 'h1');
-  game.ui.drawText(this.menu.start[2], 'center', 'top', 'black', false, 'h2');
-
+// Takes a menu item object and draws it's text to the screen
+Menu.prototype.drawText = function (obj) {
+  // Render background gray box
+  if (obj.label) {
+    this.setFont('h2');
+    var labelWidth = ctx.measureText(obj.label).width;
+  }
+  this.setFont(obj.font);
+  var textWidth = ctx.measureText(obj.text).width;
+  //console.log(test);
   ctx.save();
-  ctx.translate(this.levelListBox.x, this.levelListBox.y);
-  for (var i = 0; i < 4; i++) {
-    for (var f = 0; f < 5; f++) {
-      if (this.levels.length > (i * 5) + f) {
-        ctx.drawImage(Resources.get('images/Star.png'), this.buttonWidth * f, (this.buttonWidth * 1.59) * i - this.buttonHeight * 0.5, this.buttonWidth, this.buttonWidth * 1.5);
+  ctx.textAlign = obj.tl;
+  ctx.textBaseline = obj.bl
 
-        game.ui.drawText(this.levels[f].text, 'center', 'center', 'black', false, 'h1');
-        game.ui.drawText({
-          'text': levels.level[f].gems.collected + " / " + levels.level[f].gems.total,
-          'x': f * this.buttonWidth + (this.buttonWidth * 0.5),
-          'y': this.buttonHeight * 0.75
-        }, 'center', 'center', 'black', false, 'h5');
-      } else {
-        f = 5;
-        i = 4;
-      }
-    }
+  if (obj.bg) {
+    ctx.save();
+    this.setFont('shadowOff');
+    ctx.fillStyle = "#1F1F1F";
+    ctx.globalAlpha = 0.6;
+    ctx.fillRect(obj.x - 20, obj.y - 20, labelWidth + textWidth + 10, 20);
+    ctx.restore();
+  }
+
+  if (obj.sdw != 'transparent') {
+    ctx.shadowBlur = 1;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.shadowColor = obj.sdw;
+  }
+
+  this.setFont(obj.font);
+
+  if (obj.label) {
+    this.setFont('h2');
+    ctx.fillText(obj.label, scale(obj.x), scale(obj.y));
+    this.setFont(obj.font);
+    ctx.fillText(obj.text, scale(obj.x) + labelWidth, scale(obj.y));
+  } else {
+    //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
+    ctx.fillText(obj.text, scale(obj.x), scale(obj.y));
   }
   ctx.restore();
-
-}
-
-var UserInterface = function (level) {
-  if (level) {
-    this.lives = {
-      'label': 'Lives: ',
-      'text': level.player.lives,
-      'x': 10,
-      'y': 60
-    };
-    this.help = {
-      'label': 'Goal: ',
-      'text': level.helpText,
-      'x': 10,
-      'y': 560
-    };
-    this.number = {
-      'label': 'Level: ',
-      'text': level.number,
-      'x': 10,
-      'y': 30
-    };
-    this.gems = {
-      'label': 'Gems: ',
-      'text': level.gems.collected + " / " + level.gems.total,
-      'x': 10,
-      'y': 90,
-      'collected': level.gems.collected,
-      'total': level.gems.total
-    }
-  }
-}
-
-UserInterface.prototype.render = function () {
-  // Draw UI to screen
-  this.drawText(this.number, 'left', 'bottom', 'black', true, 'h1');
-  this.drawText(this.lives, 'left', 'bottom', 'black', true, 'h1');
-  this.drawText(this.help, 'left', 'bottom', 'black', true, 'h3');
-  this.drawText(this.gems, 'left', 'bottom', 'black', true, 'h1');
-}
-
-UserInterface.prototype.update = function (currentLevel) {
-  // Changegame.level and goal text ifgame.level changes
-  if (this.number.text != currentLevel.levelNumber) {
-    this.number.text = currentLevel.levelNumber;
-    this.help.text = currentLevel.helpText;
-    this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
-  }
-  // Change lives count if different
-  if (this.lives.text != currentLevel.player.lives) {
-    this.lives.text = currentLevel.player.lives;
-  }
-
-  if (this.gems.collected != currentLevel.gems.collected) {
-    this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
-  }
-}
-
-// Takes agame.ui item object with .label, .text, and .x and .y locations
-Menu.prototype.drawText = function (obj, tl, bl, shadow, bg, font) {
-  if(!tl) {
-    // Render background gray box
-    if(obj.label) {
-      this.setFont('h2');
-      var labelWidth = ctx.measureText(obj.label).width;
-    }
-    this.setFont(font);
-    var textWidth = ctx.measureText(obj.text).width;
-    //console.log(test);
-    ctx.save();
-    ctx.textAlign = obj.tl;
-    ctx.textBaseline = obj.bl
-
-    if (obj.bg) {
-      ctx.save();
-      this.setFont('shadowOff');
-      ctx.fillStyle = "#1F1F1F";
-      ctx.globalAlpha = 0.6;
-      ctx.fillRect(obj.x - 20, obj.y - 20, labelWidth + textWidth + 10, 20);
-      ctx.restore();
-    }
-
-    if (obj.sdw != 'transparent') {
-      ctx.shadowBlur = 1;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      ctx.shadowColor = obj.sdw;
-    }
-
-    this.setFont(obj.font);
-
-    if (obj.label) {
-      this.setFont('h2');
-      ctx.fillText(obj.label, scale(obj.x), scale(obj.y));
-      this.setFont(obj.font);
-      ctx.fillText(obj.text, scale(obj.x) + labelWidth, scale(obj.y));
-    } else {
-      //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
-      ctx.fillText(obj.text, scale(obj.x), scale(obj.y));
-    }
-    ctx.restore();
-  } else {
-    // Render background gray box
-    if(obj.label) {
-      this.setFont('h2');
-      var labelWidth = ctx.measureText(obj.label).width;
-    }
-    this.setFont(font);
-    var textWidth = ctx.measureText(obj.text).width;
-    //console.log(test);
-    ctx.save();
-    ctx.textAlign = tl;
-    ctx.textBaseline = bl
-
-    if (bg) {
-      ctx.save();
-      this.setFont('shadowOff');
-      ctx.fillStyle = "#1F1F1F";
-      ctx.globalAlpha = 0.6;
-      ctx.fillRect(scale(obj.x - 20), scale(obj.y - 20), labelWidth + textWidth + 10, 20);
-      ctx.restore();
-    }
-
-    if (shadow != 'transparent') {
-      ctx.shadowBlur = 1;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      ctx.shadowColor = shadow;
-    }
-
-    this.setFont(font);
-
-    if (obj.label) {
-      this.setFont('h2');
-      ctx.fillText(obj.label, obj.x, obj.y);
-      this.setFont(font);
-      ctx.fillText(obj.text, scale(obj.x) + labelWidth, obj.y);
-    } else {
-      //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
-      ctx.fillText(obj.text, scale(obj.x), obj.y);
-    }
-    ctx.restore();
-
-  }
-
-
 }
 
 Menu.prototype.setFont = function (style) {
@@ -388,6 +302,85 @@ Menu.prototype.setFont = function (style) {
   }
 }
 
+/*---------------------------------------------------------
+ * StartMenu class. Inherits from Menu()
+ * Also holds a list of levels.
+ *---------------------------------------------------------
+ */
+var StartMenu = function () {
+  Menu.call(this, menus.start);
+
+  this.list = {};
+  this.items.forEach(function (item) {
+    if (item.type === 'levelList') {
+      this.list = this.setListItems(item, levels.level);
+    }
+  }, this);
+}
+StartMenu.prototype = Object.create(Menu.prototype);
+StartMenu.prototype.constructor = StartMenu;
+
+StartMenu.prototype.startMenuRender = function () {
+  ctx.fillStyle = "#6ad8e3";
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  this.render();
+}
+// Takes the current Level instance
+var UserInterface = function (level) {
+  Menu.call(this, menus.hud);
+  this.level = level;
+  this.number = {};
+  this.lives = {};
+  this.gems = {};
+  this.goal = {};
+  this.items.forEach(function (item) {
+    switch (item.text) {
+    case 'level':
+      item.text = level.levelNumber;
+      this.number = item;
+      break;
+    case 'lives':
+      item.text = level.player.lives;
+      this.lives = item;
+      break;
+    case 'gems':
+      item.text = "0" + " / " + level.gems.total;
+      this.gems = item;
+      console.log(this.gems);
+      break;
+    case 'goal':
+      item.text = level.goal;
+      this.goal = item;
+      break;
+    }
+  }, this);
+}
+UserInterface.prototype = Object.create(Menu.prototype);
+UserInterface.prototype.constructor = UserInterface;
+
+UserInterface.prototype.update = function (currentLevel) {
+  // Changegame.level and goal text if game.level changes
+  //console.log(this);
+  if (this.number.text != currentLevel.levelNumber) {
+    this.number.text = currentLevel.levelNumber;
+    this.goal.text = currentLevel.helpText;
+    this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
+  }
+  // Change lives count if different
+  if (this.lives.text != currentLevel.player.lives) {
+    this.lives.text = currentLevel.player.lives;
+  }
+  if (this.gems.collected != this.level.gems.collected) {
+    this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
+  }
+}
+
+/*---------------------------------------------------------
+ * Base level object.
+ * Prototype for all other game elements:
+ * Player, map square, Enemies, Items, etc.
+ *---------------------------------------------------------
+ */
 var LevelObject = function (object, scale, sprite, offset) {
   this.sprite = sprite;
   this.x = object.x * scale.x;
@@ -418,6 +411,11 @@ LevelObject.prototype.getY = function () {
   return this.y / (this.scale.x * 0.79);
 };
 
+/*---------------------------------------------------------
+ * Item class, used to hold Rocks, Gems, Finish points, etc.
+ * TODO: take out Rocks maybe and put them in Level?
+ *---------------------------------------------------------
+ */
 var Item = function (item, scale, sprite, offset) {
   LevelObject.call(this, item, scale, sprite, offset);
   this.y = this.y - scale.y * 0.10;
@@ -426,6 +424,10 @@ var Item = function (item, scale, sprite, offset) {
 Item.prototype = Object.create(LevelObject.prototype);
 Item.prototype.constructor = Item;
 
+/*---------------------------------------------------------
+ * Enemy class
+ *---------------------------------------------------------
+ */
 var Enemy = function (enemy, scale, offset) {
   LevelObject.call(this, enemy, scale, 'images/enemy-bug.png', offset);
   //console.log(this.x);
@@ -480,6 +482,10 @@ Enemy.prototype.update = function (dt) {
   }
 };
 
+/*---------------------------------------------------------
+ * Player class
+ *---------------------------------------------------------
+ */
 var Player = function (player, scale, offset) {
   LevelObject.call(this, player, scale,
     'images/char-boy.png', offset);
@@ -511,10 +517,11 @@ Player.prototype.handleInput = function (key) {
   }
 };
 
-/*
- * Object used to create and storegame.levels.
+/*---------------------------------------------------------
+ * Object used to create and storegame levels.
  * Holds the map, enemies info and player locations.
- *
+ * New levels can be added by adding to levels.level[]
+ *---------------------------------------------------------
  */
 var levels = {
   'level': [{
@@ -642,6 +649,12 @@ var levels = {
   }]
 };
 
+/*---------------------------------------------------------
+ * Level class. Holds current level.
+ * Includes size and scale for positioning the map
+ * Array of enemies, items, and the player
+ *---------------------------------------------------------
+ */
 var Level = function (number) {
   var level = levels.level[number - 1];
 
@@ -736,9 +749,10 @@ Level.prototype.render = function () {
   }
 };
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
+/*---------------------------------------------------------
+ * Instanciate Game object
+ *---------------------------------------------------------
+ */
 var game = new Game();
 
 // This listens for key presses and sends the keys to your
@@ -773,18 +787,17 @@ function scale(value) {
 document.addEventListener('mousedown', function (e) {
   switch (globalState) {
   case 'startMenu':
-    game.startMenu.list.forEach(function (box) {
-      if (e.layerX < box.x + box.width + game.startMenu.levelListBox.x && e.layerX > box.x + game.startMenu.levelListBox.x) {
-        if (e.layerY < box.y + box.height + game.startMenu.levelListBox.y && e.layerY > box.y + game.startMenu.levelListBox.y) {
-          game.startMenu.levelButtonClicked(box.text.text);
+    game.menu.list.forEach(function (box) {
+      if (e.layerX < box.leftCorner.x + box.width && e.layerX > box.leftCorner.x) {
+        if (e.layerY < box.leftCorner.y + box.height && e.layerY > box.leftCorner.y) {
+          game.menu.levelButtonClicked(box.text);
         }
       }
     });
     break;
   case 'done':
-    //if (e.layerX < game.startMenu.menu.start[3].x +  )
+    //if (e.layerX < game.menu.menu.start[3].x +  )
 
     break;
   }
-
 });

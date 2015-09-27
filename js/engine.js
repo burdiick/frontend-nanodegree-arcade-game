@@ -30,6 +30,7 @@ var Engine = (function (global) {
     /* Call our update/render functions, pass along the time delta to
      * our update function since it may be used for smooth animation.
      */
+
     update(dt);
     render();
 
@@ -91,17 +92,8 @@ var Engine = (function (global) {
             }
             if (item.item == 7) {
               if(game.level.gems.collected == game.level.gems.total) {
-                //console.log(" test", game.level.levelNumber, levels.level.length);
-                game.startMenu = new Menu(2);
-                globalState = 'done';
-
-                if (game.level.levelNumber < levels.level.length) {
-                  game.level.gems.collected = 0;
-                  game.level = new Level(game.level.levelNumber + 1);
-                } else {
-                  game.level.gems.collected = 0;
-                  game.level = new Level(1);
-                }
+                game.menu = new StartMenu();
+                globalState = 'startMenu';
               }
             }
           }
@@ -113,12 +105,12 @@ var Engine = (function (global) {
   function updateEntities(dt) {
     switch (globalState) {
       case 'run':
-        checkCollisions();
         game.level.enemies.forEach(function (enemy) {
           enemy.update(dt);
         });
         game.level.player.update();
-        game.ui.update(game.level);
+        game.menu.update(game.level);
+        checkCollisions();
       break;
       case 'menu':
       break;
@@ -139,13 +131,13 @@ var Engine = (function (global) {
     case 'run':
       game.level.render();
       renderEntities();
-      game.ui.render();
+      game.menu.render();
       break;
     case 'startMenu':
-      game.startMenu.render();
+      game.menu.startMenuRender();
       break;
     case 'done':
-      game.startMenu.render();
+      game.menu.render();
     default:
     }
   }
