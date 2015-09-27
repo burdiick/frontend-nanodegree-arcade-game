@@ -1,3 +1,4 @@
+'use strict';
 // Set canvas size.
 // TODO set these values based on device.
 var SCALE_WIDTH = 600;
@@ -12,8 +13,8 @@ var globalState = 'startMenu';
  *---------------------------------------------------------
  */
 var Game = function () {
-  var menu = new StartMenu();
-  var level = '';
+  this.menu = new StartMenu();
+  this.level = '';
 }
 
 /*---------------------------------------------------------
@@ -66,7 +67,8 @@ var menus = {
     'width': 300,
     'height': 300,
     'itemsWide': 4,
-    'itemsTall': 4
+    'itemsTall': 4,
+    'image': 'images/Star.png'
   }],
   'hud': [{
     'type': 'text',
@@ -163,8 +165,8 @@ var menus = {
  *---------------------------------------------------------
  */
 var Menu = function (menu) {
-  var items = menu;
-  var name = menu.name;
+  this.items = menu;
+  this.name = menu.name;
 }
 
 Menu.prototype.setListItems = function (original, items) {
@@ -192,7 +194,8 @@ Menu.prototype.setListItems = function (original, items) {
         'y': y
       },
       'width': width,
-      'height': height
+      'height': height,
+      'image': original.image
     };
   }, this);
 }
@@ -211,10 +214,9 @@ Menu.prototype.render = function () {
       break;
     case 'levelList':
       this.list.forEach(function (obj, index) {
-        ctx.save();
-        //console.log(obj.x, obj.y, 'object');
+
+        ctx.drawImage(Resources.get(obj.image), obj.leftCorner.x, obj.leftCorner.y - (obj.height * 0.5), obj.width, obj.height * 1.59);
         this.drawText(obj);
-        //ctx.restore();
       }, this);
 
       break;
@@ -224,10 +226,8 @@ Menu.prototype.render = function () {
 
 Menu.prototype.levelButtonClicked = function (number) {
   console.log(number);
-  game.level = '';
   game.level = new Level(number);
-  console.log(game.level);
-  game.menu = '';
+  console.log(game.menu);
   game.menu = new UserInterface(game.level);
   console.log(game.menu);
   globalState = 'run';
@@ -336,20 +336,20 @@ var UserInterface = function (level) {
   this.items.forEach(function (item) {
     switch (item.text) {
     case 'level':
-      item.text = level.levelNumber;
+      item.text = this.level.levelNumber;
       this.number = item;
       break;
     case 'lives':
-      item.text = level.player.lives;
+      item.text = this.level.player.lives;
       this.lives = item;
       break;
     case 'gems':
-      item.text = "0" + " / " + level.gems.total;
+      item.text = "0" + " / " + this.level.gems.total;
       this.gems = item;
       console.log(this.gems);
       break;
     case 'goal':
-      item.text = level.goal;
+      item.text = this.level.helpText;
       this.goal = item;
       break;
     }
@@ -360,7 +360,7 @@ UserInterface.prototype.constructor = UserInterface;
 
 UserInterface.prototype.update = function (currentLevel) {
   // Changegame.level and goal text if game.level changes
-  //console.log(this);
+  //console.log(this.number, currentLevel.levelNumber);
   if (this.number.text != currentLevel.levelNumber) {
     this.number.text = currentLevel.levelNumber;
     this.goal.text = currentLevel.helpText;
@@ -686,12 +686,12 @@ var Level = function (number) {
       break;
     default:
     }
+
     var y = 0;
     var x = index % level.mapSize.cols;
     if (index >= level.mapSize.cols) {
       y = Math.floor(index / level.mapSize.cols);
     }
-
     return new Item({
       'item': item,
       'x': x,

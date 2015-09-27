@@ -1,3 +1,4 @@
+'use strict';
 // Engine.js
 var Engine = (function (global) {
   /* Predefine the variables we'll be using within this scope,
@@ -72,7 +73,7 @@ var Engine = (function (global) {
         }
       }
     });
-    game.level.items.forEach( function (item) {
+    game.level.items.some( function (item) {
       if(item.sprite != ''){
         if (game.level.player.x + (item.scale.x / 2) < item.x + item.scale.x && game.level.player.x + (item.scale.x / 2) > item.x) {
           if (game.level.player.y + (item.scale.x / 2) < item.y + item.scale.x && game.level.player.y + (item.scale.x / 2) > item.y) {
@@ -92,8 +93,12 @@ var Engine = (function (global) {
             }
             if (item.item == 7) {
               if(game.level.gems.collected == game.level.gems.total) {
-                game.menu = new StartMenu();
+                game.level = '';
+                game.menu = '';
                 globalState = 'startMenu';
+                game.menu = new StartMenu();
+                //reset();
+                return true;
               }
             }
           }
@@ -153,7 +158,7 @@ var Engine = (function (global) {
   }
 
   function reset() {
-    // noop
+    game = new Game();
   }
 
   /* Go ahead and load all of the images we know we're going to need to
