@@ -24,7 +24,7 @@ var Game = function () {
  *---------------------------------------------------------
  */
 var menus = {
-  'start': [{
+  'start': [{ // START MENU -------------------------------
     'type': 'text',
     'text': 'Title Menu',
     'font': 'h5',
@@ -57,20 +57,20 @@ var menus = {
   }, {
     'type': 'levelList',
     'text': '',
-    'font': 'h5',
+    'font': 'h3',
     'tl': 'center',
     'bl': 'center',
     'sdw': 'black',
     'bg': false,
-    'x': 150,
-    'y': 250,
-    'width': 300,
-    'height': 300,
+    'x': 100,
+    'y': 200,
+    'width': 400,
+    'height': 400,
     'itemsWide': 4,
     'itemsTall': 4,
     'image': 'images/Star.png'
   }],
-  'hud': [{
+  'hud': [{ // HUD ----------------------------------------
     'type': 'text',
     'label': 'Level: ',
     'text': 'level',
@@ -107,7 +107,7 @@ var menus = {
     'type': 'text',
     'label': 'Goal: ',
     'text': 'goal',
-    'font': 'h5',
+    'font': 'h4',
     'tl': 'left',
     'bl': 'bottom',
     'sdw': 'black',
@@ -115,7 +115,7 @@ var menus = {
     'x': 10,
     'y': 550
   }],
-  'done': [{
+  'done': [{ // DONE MENU ---------------------------------
     'type': 'text',
     'text': 'Done Menu',
     'font': 'h5',
@@ -129,7 +129,7 @@ var menus = {
     'type': 'text',
     'text': "Level Completed!",
     'font': 'h1',
-    'tl': 'left',
+    'tl': 'center',
     'bl': 'top',
     'sdw': 'black',
     'bg': false,
@@ -138,25 +138,78 @@ var menus = {
   }, {
     'type': 'button',
     'text': "Restart",
-    'font': 'h1',
-    'tl': 'left',
-    'bl': 'top',
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'center',
     'sdw': 'black',
     'x': 200,
     'y': 300,
-    'width': 100,
-    'height': 75
+    'width': 130,
+    'height': 60
   }, {
     'type': 'button',
     'text': "Next",
-    'font': 'h1',
-    'tl': 'left',
-    'bl': 'top',
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'center',
     'sdw': 'black',
     'x': 400,
     'y': 300,
     'width': 100,
-    'height': 75
+    'height': 60
+  }],
+  'gameOver': [{ // GAME OVER MENU ------------------------
+    'type': 'text',
+    'text': 'Game Over Menu',
+    'font': 'h5',
+    'tl': 'left',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 10,
+    'y': 10
+  }, {
+    'type': 'text',
+    'text': "Game Over",
+    'font': 'h1',
+    'tl': 'center',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 300,
+    'y': 100
+  }, {
+    'type': 'text',
+    'text': "Oh No!",
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'top',
+    'sdw': 'black',
+    'bg': false,
+    'x': 300,
+    'y': 160
+  }, {
+    'type': 'button',
+    'text': "Restart",
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'center',
+    'sdw': 'black',
+    'x': 200,
+    'y': 350,
+    'width': 130,
+    'height': 60
+  }, {
+    'type': 'button',
+    'text': "Back",
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'center',
+    'sdw': 'black',
+    'x': 400,
+    'y': 350,
+    'width': 100,
+    'height': 60
   }]
 };
 
@@ -182,6 +235,7 @@ Menu.prototype.setListItems = function (original, items) {
     if (index >= original.itemsWide) {
       y = height * Math.floor(index / original.itemsTall) + scale(original.y);
     }
+    console.log(item, 'item');
     return {
       'type': 'button',
       'text': item.number,
@@ -189,8 +243,8 @@ Menu.prototype.setListItems = function (original, items) {
       'bl': original.bl,
       'sdw': original.sdw,
       'font': original.font,
-      'x': x + (width / 2),
-      'y': y + (height / 2),
+      'x': x + (width * 0.5),
+      'y': y + (height * 0.55),
       'leftCorner': {
         'x': x,
         'y': y
@@ -203,21 +257,30 @@ Menu.prototype.setListItems = function (original, items) {
 }
 
 Menu.prototype.render = function () {
-  //console.log(this.items);
-
   this.menuObj.forEach(function (item) {
     switch (item.type) {
-    case 'text':
     case 'button':
+      ctx.save();
+      ctx.fillStyle = '#9EBF00';
+      ctx.shadowColor = 'black';
+      ctx.shadowblur = 5;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.fillRect(item.x - item.width / 2, item.y - (item.height * 0.55), item.width, item.height);
+      ctx.strokeStyle = '#147e22';
+      ctx.shadowColor = 'transparent';
+      ctx.strokeRect(item.x - item.width / 2, item.y - (item.height * 0.55), item.width, item.height)
+      ctx.restore();
+    case 'text':
       this.drawText(item);
       break;
     case 'icon':
+      //ctx.save();
       ctx.drawImage(Resources.get(item.image), item.x, item.y, item.width, item.height);
       break;
     case 'levelList':
       this.list.forEach(function (obj, index) {
-
-        ctx.drawImage(Resources.get(obj.image), obj.leftCorner.x, obj.leftCorner.y - (obj.height * 0.5), obj.width, obj.height * 1.59);
+        this.drawImg(obj);
         this.drawText(obj);
       }, this);
 
@@ -227,15 +290,24 @@ Menu.prototype.render = function () {
 }
 
 Menu.prototype.levelButtonClicked = function (number) {
-  //console.log(game.level, 'first');
   game.level = new Level(number);
-  //console.log(game.level, 'second, New level should be loaded');
   game.menu = new UserInterface(game.level);
-  //console.log(game.level, 'third');
   globalState = 'run';
 }
 
-// Takes a menu item object and draws it's text to the screen
+Menu.prototype.drawImg = function (img) {
+    ctx.save();
+    //console.log(img);
+    if (img.sdw != 'transparent') {
+      ctx.shadowBlur = 1;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.shadowColor = img.sdw;
+    }
+    ctx.drawImage(Resources.get(img.image), img.leftCorner.x, img.leftCorner.y - (img.height * 0.5), img.width, img.height * 1.59);
+    ctx.restore();
+  }
+  // Takes a menu item object and draws it's text to the screen
 Menu.prototype.drawText = function (obj) {
   // Render background gray box
   if (obj.label) {
@@ -251,17 +323,16 @@ Menu.prototype.drawText = function (obj) {
 
   if (obj.bg) {
     ctx.save();
-    this.setFont('shadowOff');
     ctx.fillStyle = "#1F1F1F";
     ctx.globalAlpha = 0.6;
-    ctx.fillRect(obj.x - 20, obj.y - 20, labelWidth + textWidth + 10, 20);
+    ctx.fillRect(scale(obj.x - 20), scale(obj.y - 20), labelWidth + textWidth + scale(10), scale(20));
     ctx.restore();
   }
 
   if (obj.sdw != 'transparent') {
-    ctx.shadowBlur = 1;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
     ctx.shadowColor = obj.sdw;
   }
 
@@ -273,8 +344,8 @@ Menu.prototype.drawText = function (obj) {
     this.setFont(obj.font);
     ctx.fillText(obj.text, scale(obj.x) + labelWidth, scale(obj.y));
   } else {
-    //console.log('scaled x: ', scale(obj.x), 'x: ' , obj.x);
     ctx.fillText(obj.text, scale(obj.x), scale(obj.y));
+    ctx.strokeText(obj.text, scale(obj.x), scale(obj.y));
   }
   ctx.restore();
 }
@@ -284,20 +355,27 @@ Menu.prototype.setFont = function (style) {
   // TODO there has to be a better way to do this.
   switch (style) {
   case "h1":
-    ctx.font = "28px Helvetica";
+    ctx.font = "30px Helvetica";
     ctx.fillStyle = '#FFF';
     break;
   case 'h2':
     ctx.font = "25px Helvetica";
-    ctx.fillStyle = '#ddcd00';
+    ctx.fillStyle = '#D3FF00';
+    ctx.strokeStyle = 'transparent';
     break;
   case 'h3':
-    ctx.font = "20px Helvetica";
-    ctx.fillStyle = '#FFF';
+    ctx.font = "bolder 25px Helvetica";
+    ctx.fillStyle = '#d3ff00';
+    ctx.strokeStyle = 'transparent';
+    break;
+  case 'h4':
+    ctx.font = '25px Helvetica';
+    ctx.fillStyle = 'white';
     break;
   case 'h5':
     ctx.font = "15px Helvetica";
     ctx.fillStyle = '#FFF';
+    ctx.strokeStyle = 'transparent';
     break;
   default:
     ctx.font = "30px Helvetica";
@@ -325,6 +403,7 @@ StartMenu.prototype.constructor = StartMenu;
 StartMenu.prototype.startMenuRender = function () {
   ctx.fillStyle = "#6ad8e3";
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   this.render();
 }
 
@@ -337,8 +416,21 @@ DoneMenu.prototype.constructor = DoneMenu;
 DoneMenu.prototype.renderDoneMenu = function () {
   ctx.fillStyle = "#6ad8e3";
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   this.render();
 }
+
+var GameOverMenu = function () {
+  Menu.call(this, menus.gameOver);
+}
+GameOverMenu.prototype = Object.create(Menu.prototype);
+GameOverMenu.prototype.constructor = DoneMenu;
+
+GameOverMenu.prototype.renderGameOverMenu = function () {
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  this.render();
+}
+
 // Takes the current Level instance
 var UserInterface = function (level) {
   Menu.call(this, menus.hud);
@@ -365,12 +457,16 @@ var UserInterface = function (level) {
       this.goal = item;
       this.goal.text = this.level.helpText;
       break;
-    }
-;
+    };
   }, this);
 }
 UserInterface.prototype = Object.create(Menu.prototype);
 UserInterface.prototype.constructor = UserInterface;
+
+UserInterface.prototype.renderUserInterface = function () {
+  //ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  this.render();
+}
 
 UserInterface.prototype.update = function (currentLevel) {
   // Changegame.level and goal text if game.level changes
@@ -398,7 +494,6 @@ UserInterface.prototype.update = function (currentLevel) {
 var LevelObject = function (object, scale, sprite, offset) {
   this.sprite = sprite;
   this.x = object.x * scale.x;
-  //console.log(object.x);
   this.y = object.y * (scale.x * 0.79);
   this.scale = scale;
   this.speed = object.speed;
@@ -425,6 +520,11 @@ LevelObject.prototype.getY = function () {
   return this.y / (this.scale.x * 0.79);
 };
 
+/*---------------------------------------------------------
+ * Block Class. Holds a block and its location.
+ * walkable is true if you can move other the block.
+ *---------------------------------------------------------
+ */
 var Block = function (block, scale, sprite, offset, walkable) {
   LevelObject.call(this, block, scale, sprite, offset);
   this.block = block.item;
@@ -435,7 +535,6 @@ Block.prototype.constructor = Block;
 
 /*---------------------------------------------------------
  * Item class, used to hold Rocks, Gems, Finish points, etc.
- * TODO: take out Rocks maybe and put them in Level?
  *---------------------------------------------------------
  */
 var Item = function (item, scale, sprite, offset) {
@@ -452,8 +551,8 @@ Item.prototype.constructor = Item;
  */
 var Enemy = function (enemy, scale, offset) {
   LevelObject.call(this, enemy, scale, 'images/enemy-bug.png', offset);
-  //console.log(this.x);
-  this.y = this.y - scale.y * 0.10;
+
+  this.y = this.y - scale.y * 0.10; // Offset enemy y by a little bit to center on block
   this.path = enemy.path;
   this.currentWaypoint = 1;
 
@@ -560,24 +659,24 @@ var levels = {
       1, 1, 2, 2, 1,
       1, 1, 2, 2, 1
     ],
-    'items': [
+    'items': [ // Array holding Map items like rocks, gems and the finish gate
       2, 0, 0, 0, 7,
       1, 1, 0, 1, 1,
-      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 2,
       1, 1, 0, 1, 1,
-      0, 2, 0, 0, 0,
-      0, 0, 0, 2, 0
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0
     ],
     'enemies': [{ // Data to instantiate enemies
       'type': 'red-bug', // Enemy type
-      'speed': 5,
+      'speed': 5, // Movement speed
       'x': 0,
-      'y': 2, // Movement speed
+      'y': 2,
       'path': [{ // Array of grid locations to use as waypoints
         'x': 0,
         'y': 2
       }, {
-        'x': 4,
+        'x': 3,
         'y': 2
       }]
     }, {
@@ -597,42 +696,42 @@ var levels = {
       'x': 2,
       'y': 5
     },
-    'completed': 0,
-    'gems': {
+    'completed': 0, // Data to show if you have completed the level already. No, it shouldnt be here
+    'gems': { // Data to track gem collection
       'collected': 0,
-      'total': 3
+      'total': 2
     },
     'helpText': 'Reach the Exit. Watch out for bugs!'
   }, {
-    'number': 2, // Level number
-    'mapSize': { // Size of map in squares
+    'number': 2,
+    'mapSize': {
       'rows': 7,
       'cols': 10
     },
-    'map': [ // Array holding map layout.
+    'map': [
       0, 0, 0, 1, 1, 1, 1, 0, 0, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      3, 3, 3, 1, 3, 3, 3, 3, 3, 1,
       1, 2, 2, 1, 2, 2, 2, 1, 1, 2,
-      1, 1, 1, 1, 1, 1, 1, 3, 3, 2,
-      2, 1, 1, 2, 1, 2, 2, 2, 2, 2,
-      2, 2, 1, 2, 1, 2, 3, 3, 3, 2,
-      2, 2, 1, 2, 2, 2, 2, 2, 2, 2
+      1, 3, 3, 3, 3, 3, 3, 3, 3, 2,
+      2, 3, 3, 2, 3, 2, 2, 2, 2, 2,
+      2, 2, 3, 2, 3, 2, 3, 3, 3, 2,
+      2, 2, 3, 2, 2, 2, 2, 2, 2, 2
     ],
-    'items': [ // Array holding map layout.
+    'items': [
       0, 0, 0, 0, 2, 2, 0, 0, 0, 7,
-      1, 1, 1, 0, 1, 1, 0, 1, 1, 0,
+      1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
       0, 1, 1, 2, 1, 0, 0, 0, 0, 0,
       0, 0, 1, 2, 1, 0, 1, 1, 1, 0,
       0, 0, 1, 2, 0, 0, 0, 0, 0, 0
     ],
-    'enemies': [{ // Data to instantiate enemies
-      'type': 'red-bug', // Enemy type
-      'speed': 5, // Movement speed
+    'enemies': [{
+      'type': 'red-bug',
+      'speed': 5,
       'x': 0,
       'y': 2,
-      'path': [{ // Array of grid locations to use as waypoints
+      'path': [{
         'x': 0,
         'y': 2
       }, {
@@ -658,7 +757,7 @@ var levels = {
         'y': 4
       }],
     }],
-    'player': { // Data to set player location for map
+    'player': {
       'x': 0,
       'y': 6
     },
@@ -679,7 +778,7 @@ var levels = {
  */
 var Level = function (number) {
   var level = levels.level[number - 1];
-  //console.log(this, 'Inside Level constructor');
+
   this.levelNumber = number;
   this.helpText = level.helpText;
   this.gems = level.gems;
@@ -691,11 +790,14 @@ var Level = function (number) {
   if (this.mapSize.cols <= this.mapSize.rows) {
     offsetX = (CANVAS_WIDTH - (this.mapSize.cols * this.scale.x)) / 2;
   } else {
-    offsetY = (CANVAS_HEIGHT - (this.mapSize.rows * this.scale.y)) / 2;
+    offsetY = (CANVAS_HEIGHT - (this.mapSize.rows * this.scale.x)) / 2;
   }
-  this.offset = {'x': offsetX, 'y': offsetY};
-  //console.log(scale, 'scale');
-  this.map = level.map.map( function (obj, index) {
+  this.offset = {
+    'x': offsetX,
+    'y': offsetY
+  };
+
+  this.map = level.map.map(function (obj, index) {
     var sprite = '';
     var walkable = true;
     var y = 0;
@@ -705,27 +807,27 @@ var Level = function (number) {
     }
 
     switch (obj) {
-      case 0:
-        sprite = 'images/water-block.png';
-        walkable = false;
-        break;
-      case 1:
-        sprite = 'images/stone-block.png';
-        break;
-      case 2:
-        sprite = 'images/grass-block.png';
-        break;
-      case 3:
-        sprite = 'images/stone-block.png';
-        walkable = false;
-        break;
+    case 0:
+      sprite = 'images/water-block.png';
+      walkable = false;
+      break;
+    case 1:
+      sprite = 'images/stone-block.png';
+      break;
+    case 2:
+      sprite = 'images/grass-block.png';
+      break;
+    case 3:
+      sprite = 'images/stone-block.png';
+      walkable = false;
+      break;
     }
 
-    return new Block ({
+    return new Block({
       'item': obj,
       'x': x,
       'y': y
-      }, this.scale, sprite, this.offset, walkable);
+    }, this.scale, sprite, this.offset, walkable);
   }, this);
 
   this.enemies = level.enemies.map(function (enemy) {
@@ -782,15 +884,14 @@ Level.prototype.render = function () {
   // Draw background to blue color
   ctx.fillStyle = "#6ad8e3"
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   // Draw map to screen
-  this.map.forEach( function (block) {
-    console.log(block);
+  this.map.forEach(function (block) {
     block.render();
   });
 
-  this.items.forEach( function (item) {
-    if(item.sprite != '') {
+  this.items.forEach(function (item) {
+    if (item.sprite != '') {
       item.render();
     }
   });
@@ -813,8 +914,6 @@ document.addEventListener('keyup', function (e) {
     49: '1',
     50: '2'
   };
-  //console.log(e.keyCode);
-  //console.log(allowedKeys[e.keyCode]);
   switch (globalState) {
   case 'run':
     game.level.player.handleInput(allowedKeys[e.keyCode]);
@@ -843,8 +942,41 @@ document.addEventListener('mousedown', function (e) {
     });
     break;
   case 'done':
-
-
+    console.log(game);
+    game.menu.menuObj.forEach(function (box) {
+      if (box.type === 'button') {
+        if (e.layerX < (box.x - (box.width / 2)) + box.width && e.layerX > box.x - box.width / 2) {
+          if (e.layerY < (box.y - box.height * 0.2) + box.height && e.layerY > box.y - box.height * 0.2) {
+            if (box.text === 'Restart') {
+              game.menu.levelButtonClicked(game.level.levelNumber);
+            } else if (box.text === 'Next') {
+              console.log(levels.level.length, game.level.levelNumber);
+              if (levels.level.length > game.level.levelNumber) {
+                game.menu.levelButtonClicked(game.level.levelNumber + 1);
+              } else {
+                game.menu.levelButtonClicked(1);
+              }
+            }
+          }
+        }
+      }
+    });
+    break;
+  case 'gameOver':
+    game.menu.menuObj.forEach(function (box) {
+      if (box.type === 'button') {
+        if (e.layerX < (box.x - (box.width / 2)) + box.width && e.layerX > box.x - box.width / 2) {
+          if (e.layerY < (box.y - box.height * 0.2) + box.height && e.layerY > box.y - box.height * 0.2) {
+            if (box.text === 'Restart') {
+              game.menu.levelButtonClicked(game.level.levelNumber);
+            } else if (box.text === 'Back') {
+              game.menu = new StartMenu();
+              globalState = 'startMenu';
+            }
+          }
+        }
+      }
+    });
     break;
   }
 });

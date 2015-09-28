@@ -87,26 +87,18 @@ var Engine = (function (global) {
       if(item.sprite != ''){
         if (game.level.player.x + (item.scale.x / 2) < item.x + item.scale.x && game.level.player.x + (item.scale.x / 2) > item.x) {
           if (game.level.player.y + (item.scale.x / 2) < item.y + item.scale.x && game.level.player.y + (item.scale.x / 2) > item.y) {
-            //game.level.player.lives--;
-            //console.log("successfull colliision!");
             // TODO REPLACE WITH FUNCTION
-            //console.log(item);
             if (item.item == 2) {
               item.sprite = '';
               game.level.gems.collected++;
               console.log(game.level.gems.collected, game.level.gems.total);
             }
 
-            if (item.item == 1) {
-              game.level.player.x = game.level.player.prevX;
-              game.level.player.y = game.level.player.prevY;
-            }
             if (item.item == 7) {
               if(game.level.gems.collected == game.level.gems.total) {
                 game.level.gems.collected = 0;
                 globalState = 'done';
                 game.menu = new DoneMenu();
-                //reset();
                 return true;
               }
             }
@@ -125,6 +117,10 @@ var Engine = (function (global) {
         game.level.player.update();
         game.menu.update(game.level);
         checkCollisions();
+        if(game.level.player.lives == 0) {
+          game.menu = new GameOverMenu();
+          globalState = 'gameOver';
+        }
       break;
       case 'menu':
       break;
@@ -133,33 +129,26 @@ var Engine = (function (global) {
 
   }
 
-  canvas.addEventListener('mousedown', function (e) {
-
-  });
-
   function render() {
-    /* This array holds the relative URL to the image used
-     * for that particular row of the game level.
-     */
     switch (globalState) {
     case 'run':
       game.level.render();
       renderEntities();
-      game.menu.render();
+      game.menu.renderUserInterface();
       break;
     case 'startMenu':
       game.menu.startMenuRender();
       break;
     case 'done':
       game.menu.renderDoneMenu();
+      break;
+    case 'gameOver':
+      game.menu.renderGameOverMenu();
     default:
     }
   }
 
   function renderEntities() {
-    /* Loop through all of the objects within the allEnemies array and call
-     * the render function you have defined.
-     */
     game.level.enemies.forEach(function (enemy) {
       enemy.render();
     });
@@ -167,7 +156,7 @@ var Engine = (function (global) {
   }
 
   function reset() {
-    //game = new Game();
+  
   }
 
   /* Go ahead and load all of the images we know we're going to need to
@@ -183,7 +172,8 @@ var Engine = (function (global) {
     'images/Selector.png',
     'images/Star.png',
     'images/gem-blue.png',
-    'images/Rock.png'
+    'images/Rock.png',
+    'images/background-one.jpg'
   ]);
   Resources.onReady(init);
 
