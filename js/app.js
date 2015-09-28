@@ -69,6 +69,27 @@ var menus = {
     'itemsWide': 4,
     'itemsTall': 4,
     'image': 'images/Star.png'
+  }, {
+    'type': 'levelList',
+    'text': '',
+    'font': 'h3',
+    'tl': 'center',
+    'bl': 'center',
+    'sdw': 'black',
+    'bg': false,
+    'x': 50,
+    'y': 500,
+    'width': 500,
+    'height': 100,
+    'itemsWide': 5,
+    'itemsTall': 1,
+    'image': [
+      'images/char-boy.png',
+      'images/char-cat-gir.png',
+      'images/char-horn-girl.png',
+      'images/char-pink-girl.png',
+      'images/char-princess-girl.png'
+    ]
   }],
   'hud': [{ // HUD ----------------------------------------
     'type': 'text',
@@ -155,7 +176,18 @@ var menus = {
     'sdw': 'black',
     'x': 400,
     'y': 300,
-    'width': 100,
+    'width': 130,
+    'height': 60
+  }, {
+    'type': 'button',
+    'text': "Back",
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'center',
+    'sdw': 'black',
+    'x': 300,
+    'y': 420,
+    'width': 130,
     'height': 60
   }],
   'gameOver': [{ // GAME OVER MENU ------------------------
@@ -208,7 +240,7 @@ var menus = {
     'sdw': 'black',
     'x': 400,
     'y': 350,
-    'width': 100,
+    'width': 130,
     'height': 60
   }]
 };
@@ -220,6 +252,7 @@ var menus = {
 var Menu = function (menu) {
   this.menuObj = menu;
   this.items = '';
+  this.timer = 0;
   //this.name = menu.name;
   //console.log(this.items, 'in Menu constructor');
 }
@@ -251,7 +284,8 @@ Menu.prototype.setListItems = function (original, items) {
       },
       'width': width,
       'height': height,
-      'image': original.image
+      'image': original.image,
+      'completed': item.completed
     };
   }, this);
 }
@@ -280,7 +314,15 @@ Menu.prototype.render = function () {
       break;
     case 'levelList':
       this.list.forEach(function (obj, index) {
-        this.drawImg(obj);
+        if ( levels.level[index].completed ) {
+          this.drawImg(obj);
+        } else {
+          ctx.save();
+          ctx.globalAlpha = 0.5;
+          this.drawImg(obj);
+          ctx.restore();
+        }
+
         this.drawText(obj);
       }, this);
 
@@ -354,13 +396,21 @@ Menu.prototype.setFont = function (style) {
   // Set ctx to required style.
   // TODO there has to be a better way to do this.
   switch (style) {
+  case 'h0':
+    ctx.font = '40px Helvetica';
+    ctx.fillStyle = '#d3ff00'
+    break;
+    case 'h0-red':
+      ctx.font = '40px Helvetica';
+      ctx.fillStyle = '#cc2514'
+      break;
   case "h1":
     ctx.font = "30px Helvetica";
-    ctx.fillStyle = '#FFF';
+    ctx.fillStyle = '#fff';
     break;
   case 'h2':
     ctx.font = "25px Helvetica";
-    ctx.fillStyle = '#D3FF00';
+    ctx.fillStyle = '#Ddff00';
     ctx.strokeStyle = 'transparent';
     break;
   case 'h3':
@@ -437,6 +487,7 @@ var UserInterface = function (level) {
   //this.items = menus.hud;
   //console.log(menus.hud, 'UserInterface Constructor called');
   this.level = level;
+  this.messages = [];
 
   this.menuObj.forEach(function (item) {
     //console.log(item, 'inside this.items.forEach()');
@@ -459,6 +510,7 @@ var UserInterface = function (level) {
       break;
     };
   }, this);
+
 }
 UserInterface.prototype = Object.create(Menu.prototype);
 UserInterface.prototype.constructor = UserInterface;
@@ -466,9 +518,44 @@ UserInterface.prototype.constructor = UserInterface;
 UserInterface.prototype.renderUserInterface = function () {
   //ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   this.render();
+  this.messages.forEach( function( message, index ) {
+    var height;
+    if ( index <= 1) {
+      height = 0;
+    } else {
+      height = index - 1;
+    }
+    var message = {
+      'text': message.message,
+      'x': (CANVAS_WIDTH / 2),
+      'y': (CANVAS_HEIGHT / 2)  - (scale(50) * height),
+      'sdw': 'black',
+      'tl': 'center',
+      'bl': 'center',
+      'font': message.font
+    };
+    ctx.save();
+    if (index == 1) {
+      ctx.globalAlpha = 0.9;
+    } else if (index == 2) {
+      ctx.globalAlpha = 0.6;
+    } else if (index == 3) {
+      ctx.globalAlpha = 0.3;
+    } else if (index >= 4) {
+      ctx.globalAlpha = 0;
+    } else if (index == 0){
+      if (this.timer < 1.5){
+          ctx.globalAlpha = 1 / (this.timer / 1);
+          message.y = message.y + ((this.timer / 2) * (CANVAS_HEIGHT / 3));
+      }
+    }
+    this.drawText(message);
+    ctx.restore();
+  }, this);
+  //console.log(this.messages);
 }
 
-UserInterface.prototype.update = function (currentLevel) {
+UserInterface.prototype.update = function( currentLevel, dt ) {
   // Changegame.level and goal text if game.level changes
   //console.log(this.number, currentLevel.levelNumber);
   if (this.number.text != currentLevel.levelNumber) {
@@ -483,6 +570,20 @@ UserInterface.prototype.update = function (currentLevel) {
   if (this.gems.collected != this.level.gems.collected) {
     this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
   }
+  if(this.messages.length > 0) {
+    if (this.timer >= 1.4) {
+      this.timer = 0;
+      this.messages.splice(0, 1);
+    } else {
+      this.timer = this.timer + (1 * dt);
+    }
+  } else {
+    this.timer = 0;
+  }
+}
+
+UserInterface.prototype.addMessage = function (message, font) {
+  this.messages.push({'message': message, 'font': font});
 }
 
 /*---------------------------------------------------------
@@ -616,26 +717,107 @@ var Player = function (player, scale, offset) {
   this.initY = this.y;
   this.prevX = this.x;
   this.prevY = this.y;
+  this.speed = 6;
+  this.timer = 0;
+
+  this.status = 'standing';
+  this.movement = {'up': false, 'down': false, 'left': false, 'right': false};
 };
 Player.prototype = Object.create(LevelObject.prototype);
 Player.prototype.constructor = Player;
 
-Player.prototype.update = function () {
+Player.prototype.die = function (dt) {
+  this.sprite = 'images/char-boy-dead.png';
+  this.status = 'dead';
+}
+
+Player.prototype.update = function (dt) {
   // Not sure what to do here yet.
+  if(this.status !== 'dead') {
+    this.sprite = 'images/char-boy.png';
+    this.prevX = this.x;
+    this.prevY = this.y;
+    if ( this.movement.up ) {
+      if ( this.movement.right ) {
+        this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else if ( this.movement.left ) {
+        this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else {
+        this.y = this.y - (this.scale.x / 2) * this.speed * dt;
+      }
+    } else if ( this.movement.right ) {
+      if ( this.movement.up ) {
+        this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else if ( this.movement.down ) {
+        this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else {
+        this.x = this.x + (this.scale.x / 2) * this.speed * dt;
+      }
+    } else if ( this.movement.down ) {
+      if ( this.movement.right ) {
+        this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else if ( this.movement.left ) {
+        this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else {
+        this.y = this.y + (this.scale.x / 2) * this.speed * dt;
+      }
+    } else if ( this.movement.left) {
+      if ( this.movement.down ) {
+        this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else if ( this.movement.up ) {
+        this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+        this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
+      } else {
+        this.x = this.x - (this.scale.x / 2) * this.speed * dt;
+      }
+    }
+  } else if ( this.status === 'dead' ){
+    this.timer += 1 * dt;
+    //console.log(this);
+    if ( this.timer >= 1) {
+      console.log(this.timer);
+      this.timer = 0;
+
+      if(this.lives <= 0) {
+        game.menu = new GameOverMenu();
+        globalState = 'gameOver';
+        this.status = 'standing';
+        game.level.gems.collected = 0;
+      } else {
+        this.status = 'standing';
+        this.x = this.initX;
+        this.prevX = this.x;
+        console.log(this);
+        this.y = this.initY;
+        this.prevY = this.y;
+
+      }
+    }
+  }
+
 };
 
-Player.prototype.handleInput = function (key) {
-  this.prevX = this.x;
-  this.prevY = this.y;
-  if (key === 'left' && this.getX() > 0) {
-    this.x = this.setX(this.getX() - 1);
-  } else if (key === 'right' && this.getX() < game.level.mapSize.cols - 1) {
-    this.x = this.setX(this.getX() + 1);
-  } else if (key === 'up' && this.getY() > 0) {
-    this.y = this.setY(this.getY() - 1);
-  } else if (key === 'down' && this.getY() + 1 < game.level.mapSize.rows - 1) {
-    this.y = this.setY(this.getY() + 1);
+Player.prototype.keyDown = function (key) {
+  if (this.status !== 'dead') {
+    this.movement[key] = true;
+    this.status = 'walking';
   }
+
+};
+
+Player.prototype.keyUp = function (key) {
+  this.movement[key] = false;
+  if( this.status !== 'dead') {
+    this.status = 'standing';
+  }
+
 };
 
 /*---------------------------------------------------------
@@ -784,6 +966,8 @@ var Level = function (number) {
   this.gems = level.gems;
   this.mapSize = level.mapSize;
   this.scale = this.setScale();
+  this.completed = level.completed;
+  this.leftCorner = {'x': 0, 'y': 0};
 
   var offsetY = 0;
   var offsetX = 0;
@@ -882,8 +1066,6 @@ Level.prototype.setScale = function () {
 Level.prototype.render = function () {
 
   // Draw background to blue color
-  ctx.fillStyle = "#6ad8e3"
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   // Draw map to screen
   this.map.forEach(function (block) {
@@ -905,6 +1087,30 @@ var game = new Game();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
+document.addEventListener('keydown', function (e) {
+  var allowedKeys = {
+    37: 'left',
+    38: 'up',
+    39: 'right',
+    40: 'down',
+    49: '1',
+    50: '2'
+  };
+  switch (globalState) {
+  case 'run':
+    if (game.level.player.status !== 'dead') {
+      game.level.player.keyDown(allowedKeys[e.keyCode]);
+    }
+
+    break;
+  case 'startMenu':
+    //do something
+    break;
+  default:
+    //do something else
+  }
+});
+
 document.addEventListener('keyup', function (e) {
   var allowedKeys = {
     37: 'left',
@@ -916,7 +1122,7 @@ document.addEventListener('keyup', function (e) {
   };
   switch (globalState) {
   case 'run':
-    game.level.player.handleInput(allowedKeys[e.keyCode]);
+      game.level.player.keyUp(allowedKeys[e.keyCode]);
     break;
   case 'startMenu':
     //do something
@@ -956,6 +1162,10 @@ document.addEventListener('mousedown', function (e) {
               } else {
                 game.menu.levelButtonClicked(1);
               }
+            }
+            if (box.text === 'Back') {
+              game.menu = new StartMenu();
+              globalState = 'startMenu';
             }
           }
         }
