@@ -15,6 +15,8 @@ var globalState = 'startMenu';
 var Game = function () {
   this.menu = new StartMenu();
   this.level = '';
+  this.character = 'images/char-boy.png';
+
 }
 
 /*---------------------------------------------------------
@@ -70,7 +72,7 @@ var menus = {
     'itemsTall': 4,
     'image': 'images/Star.png'
   }, {
-    'type': 'levelList',
+    'type': 'charList',
     'text': '',
     'font': 'h3',
     'tl': 'center',
@@ -83,13 +85,7 @@ var menus = {
     'height': 100,
     'itemsWide': 5,
     'itemsTall': 1,
-    'image': [
-      'images/char-boy.png',
-      'images/char-cat-gir.png',
-      'images/char-horn-girl.png',
-      'images/char-pink-girl.png',
-      'images/char-princess-girl.png'
-    ]
+    'image': ''
   }],
   'hud': [{ // HUD ----------------------------------------
     'type': 'text',
@@ -101,7 +97,7 @@ var menus = {
     'sdw': 'black',
     'bg': true,
     'x': 10,
-    'y': 50
+    'y': 35
   }, {
     'type': 'text',
     'label': 'Lives: ',
@@ -111,8 +107,8 @@ var menus = {
     'bl': 'bottom',
     'sdw': 'black',
     'bg': true,
-    'x': 10,
-    'y': 100
+    'x': 490,
+    'y': 35
   }, {
     'type': 'text',
     'label': 'Gems: ',
@@ -122,8 +118,8 @@ var menus = {
     'bl': 'bottom',
     'sdw': 'black',
     'bg': true,
-    'x': 10,
-    'y': 150
+    'x': 230,
+    'y': 35
   }, {
     'type': 'text',
     'label': 'Goal: ',
@@ -134,7 +130,20 @@ var menus = {
     'sdw': 'black',
     'bg': true,
     'x': 10,
-    'y': 550
+    'y': 580
+  }, {
+    'type': 'icon',
+    'text': 'pause',
+    'font': 'h4',
+    'tl': 'right',
+    'bl': 'bottom',
+    'sdw': 'transparent',
+    'bg': false,
+    'x': 530,
+    'y': 530,
+    'width': 50,
+    'height': 50,
+    'image': 'images/pause-button.png'
   }],
   'done': [{ // DONE MENU ---------------------------------
     'type': 'text',
@@ -151,7 +160,7 @@ var menus = {
     'text': "Level Completed!",
     'font': 'h1',
     'tl': 'center',
-    'bl': 'top',
+    'bl': 'middle',
     'sdw': 'black',
     'bg': false,
     'x': 300,
@@ -161,7 +170,7 @@ var menus = {
     'text': "Restart",
     'font': 'h2',
     'tl': 'center',
-    'bl': 'center',
+    'bl': 'middle',
     'sdw': 'black',
     'x': 200,
     'y': 300,
@@ -172,7 +181,7 @@ var menus = {
     'text': "Next",
     'font': 'h2',
     'tl': 'center',
-    'bl': 'center',
+    'bl': 'middle',
     'sdw': 'black',
     'x': 400,
     'y': 300,
@@ -183,10 +192,53 @@ var menus = {
     'text': "Back",
     'font': 'h2',
     'tl': 'center',
-    'bl': 'center',
+    'bl': 'middle',
     'sdw': 'black',
     'x': 300,
     'y': 420,
+    'width': 130,
+    'height': 60
+  }],
+  'pause': [{ // PAUSE MENU ------------------------
+    'type': 'text',
+    'text': 'Pause Menu',
+    'font': 'h5',
+    'tl': 'left',
+    'bl': 'middle',
+    'sdw': 'black',
+    'bg': false,
+    'x': 10,
+    'y': 10
+  }, {
+    'type': 'text',
+    'text': "Paused",
+    'font': 'h1',
+    'tl': 'center',
+    'bl': 'middle',
+    'sdw': 'black',
+    'bg': false,
+    'x': 300,
+    'y': 100
+  }, {
+    'type': 'button',
+    'text': "Restart",
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'middle',
+    'sdw': 'black',
+    'x': 200,
+    'y': 350,
+    'width': 130,
+    'height': 60
+  }, {
+    'type': 'button',
+    'text': "Back",
+    'font': 'h2',
+    'tl': 'center',
+    'bl': 'middle',
+    'sdw': 'black',
+    'x': 400,
+    'y': 350,
     'width': 130,
     'height': 60
   }],
@@ -225,7 +277,7 @@ var menus = {
     'text': "Restart",
     'font': 'h2',
     'tl': 'center',
-    'bl': 'center',
+    'bl': 'middle',
     'sdw': 'black',
     'x': 200,
     'y': 350,
@@ -236,7 +288,7 @@ var menus = {
     'text': "Back",
     'font': 'h2',
     'tl': 'center',
-    'bl': 'center',
+    'bl': 'middle',
     'sdw': 'black',
     'x': 400,
     'y': 350,
@@ -259,6 +311,9 @@ var Menu = function (menu) {
 
 Menu.prototype.setListItems = function (original, items) {
   //console.log(original, items);
+  //var temp = items;
+  console.log(items, 'items');
+  console.log(original, 'original');
   return items.map(function (item, index) {
     var width = scale(original.width) / original.itemsWide;
     var height = scale(original.height) / original.itemsTall;
@@ -268,7 +323,7 @@ Menu.prototype.setListItems = function (original, items) {
     if (index >= original.itemsWide) {
       y = height * Math.floor(index / original.itemsTall) + scale(original.y);
     }
-    console.log(item, 'item');
+    //console.log(item, 'item');
     return {
       'type': 'button',
       'text': item.number,
@@ -284,8 +339,8 @@ Menu.prototype.setListItems = function (original, items) {
       },
       'width': width,
       'height': height,
-      'image': original.image,
-      'completed': item.completed
+      'image': original.image || item.image,
+      'completed': item.completed || items.completed
     };
   }, this);
 }
@@ -295,26 +350,21 @@ Menu.prototype.render = function () {
     switch (item.type) {
     case 'button':
       ctx.save();
-      ctx.fillStyle = '#9EBF00';
-      ctx.shadowColor = 'black';
-      ctx.shadowblur = 5;
-      ctx.shadowOffsetX = 3;
-      ctx.shadowOffsetY = 3;
-      ctx.fillRect(item.x - item.width / 2, item.y - (item.height * 0.55), item.width, item.height);
-      ctx.strokeStyle = '#147e22';
-      ctx.shadowColor = 'transparent';
-      ctx.strokeRect(item.x - item.width / 2, item.y - (item.height * 0.55), item.width, item.height)
+      //console.log(item.x, item.y, item.width, item.height);
+      ctx.drawImage(Resources.get('images/button.png'), item.x - (item.width / 2), item.y - (item.width * 1.2), item.width, item.width * 1.5);
+      //item.x = textX;
+      //item.y = textY;
       ctx.restore();
     case 'text':
       this.drawText(item);
       break;
     case 'icon':
       //ctx.save();
-      ctx.drawImage(Resources.get(item.image), item.x, item.y, item.width, item.height);
+      ctx.drawImage(Resources.get(item.image), item.x, item.y - (item.height * 0.55), item.width, item.height * 1.49);
       break;
     case 'levelList':
       this.list.forEach(function (obj, index) {
-        if ( levels.level[index].completed ) {
+        if (levels.level[index].completed) {
           this.drawImg(obj);
         } else {
           ctx.save();
@@ -322,10 +372,20 @@ Menu.prototype.render = function () {
           this.drawImg(obj);
           ctx.restore();
         }
-
         this.drawText(obj);
       }, this);
-
+      break;
+    case 'charList':
+      //console.log(this.charList);
+      this.charList.forEach(function (obj, index) {
+        //console.log(obj.completed);
+        if (obj.completed) {
+          ctx.drawImage(Resources.get('images/Selector.png'), obj.leftCorner.x, obj.leftCorner.y, obj.width, obj.height);
+          this.drawImg(obj);
+        } else {
+          this.drawImg(obj);
+        }
+      }, this);
       break;
     }
   }, this);
@@ -367,7 +427,7 @@ Menu.prototype.drawText = function (obj) {
     ctx.save();
     ctx.fillStyle = "#1F1F1F";
     ctx.globalAlpha = 0.6;
-    ctx.fillRect(scale(obj.x - 20), scale(obj.y - 20), labelWidth + textWidth + scale(10), scale(20));
+    ctx.fillRect(scale(obj.x - 10), scale(obj.y - 20), labelWidth + textWidth + scale(20), scale(20));
     ctx.restore();
   }
 
@@ -400,10 +460,10 @@ Menu.prototype.setFont = function (style) {
     ctx.font = '40px Helvetica';
     ctx.fillStyle = '#d3ff00'
     break;
-    case 'h0-red':
-      ctx.font = '40px Helvetica';
-      ctx.fillStyle = '#cc2514'
-      break;
+  case 'h0-red':
+    ctx.font = '40px Helvetica';
+    ctx.fillStyle = '#cc2514'
+    break;
   case "h1":
     ctx.font = "30px Helvetica";
     ctx.fillStyle = '#fff';
@@ -441,9 +501,53 @@ var StartMenu = function () {
   Menu.call(this, menus.start);
 
   this.list = {};
+  this.charList = {};
   this.menuObj.forEach(function (item) {
     if (item.type === 'levelList') {
+      console.log(item, 'before');
+      var temp = item;
       this.list = this.setListItems(item, levels.level);
+      if (item === temp) {
+        console.log('equal');
+      } else {
+        console.log('not equal');
+      }
+
+    } else if (item.type === 'charList') {
+      var temp = this.charList;
+      console.log(item, 'charList');
+
+      var chars = [
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png'
+      ]
+
+      var characters = chars.map(function (item, index) {
+        console.log(item);
+        var selected = 0;
+        if (index == 0) {
+          selected = true;
+        }
+
+        return {
+          'image': item,
+          'completed': selected
+        };
+      }, item);
+      console.log(characters);
+
+      this.charList = this.setListItems(item, characters);
+
+      this.charList.forEach(function (obj, index) {
+        var imgArray = obj.image;
+        if (Array.isArray(obj.image)) {
+          var temp = imgArray.splice(0, 1);
+          obj.image = temp[0];
+        } else {}
+      }, this);
     }
   }, this);
 }
@@ -477,6 +581,18 @@ GameOverMenu.prototype = Object.create(Menu.prototype);
 GameOverMenu.prototype.constructor = DoneMenu;
 
 GameOverMenu.prototype.renderGameOverMenu = function () {
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  this.render();
+}
+
+var PauseMenu = function (level) {
+  Menu.call(this, menus.pause);
+  this.level = level;
+}
+PauseMenu.prototype = Object.create(Menu.prototype);
+PauseMenu.prototype.constructor = PauseMenu;
+
+PauseMenu.prototype.renderPauseMenu = function () {
   ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   this.render();
 }
@@ -516,11 +632,12 @@ UserInterface.prototype = Object.create(Menu.prototype);
 UserInterface.prototype.constructor = UserInterface;
 
 UserInterface.prototype.renderUserInterface = function () {
-  //ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   this.render();
-  this.messages.forEach( function( message, index ) {
+
+  // Render message. Make the message object, set alpha, the write to screen.
+  this.messages.forEach(function (message, index) {
     var height;
-    if ( index <= 1) {
+    if (index <= 1) {
       height = 0;
     } else {
       height = index - 1;
@@ -528,7 +645,7 @@ UserInterface.prototype.renderUserInterface = function () {
     var message = {
       'text': message.message,
       'x': (CANVAS_WIDTH / 2),
-      'y': (CANVAS_HEIGHT / 2)  - (scale(50) * height),
+      'y': (CANVAS_HEIGHT / 2) - (scale(50) * height),
       'sdw': 'black',
       'tl': 'center',
       'bl': 'center',
@@ -543,19 +660,18 @@ UserInterface.prototype.renderUserInterface = function () {
       ctx.globalAlpha = 0.3;
     } else if (index >= 4) {
       ctx.globalAlpha = 0;
-    } else if (index == 0){
-      if (this.timer < 1.5){
-          ctx.globalAlpha = 1 / (this.timer / 1);
-          message.y = message.y + ((this.timer / 2) * (CANVAS_HEIGHT / 3));
+    } else if (index == 0) {
+      if (this.timer < 1.5) {
+        ctx.globalAlpha = 1 / (this.timer / 1);
+        message.y = message.y + ((this.timer / 2) * (CANVAS_HEIGHT / 3));
       }
     }
     this.drawText(message);
     ctx.restore();
   }, this);
-  //console.log(this.messages);
 }
 
-UserInterface.prototype.update = function( currentLevel, dt ) {
+UserInterface.prototype.update = function (currentLevel, dt) {
   // Changegame.level and goal text if game.level changes
   //console.log(this.number, currentLevel.levelNumber);
   if (this.number.text != currentLevel.levelNumber) {
@@ -570,7 +686,9 @@ UserInterface.prototype.update = function( currentLevel, dt ) {
   if (this.gems.collected != this.level.gems.collected) {
     this.gems.text = currentLevel.gems.collected + " / " + currentLevel.gems.total;
   }
-  if(this.messages.length > 0) {
+
+  // Update message timer
+  if (this.messages.length > 0) {
     if (this.timer >= 1.4) {
       this.timer = 0;
       this.messages.splice(0, 1);
@@ -583,7 +701,10 @@ UserInterface.prototype.update = function( currentLevel, dt ) {
 }
 
 UserInterface.prototype.addMessage = function (message, font) {
-  this.messages.push({'message': message, 'font': font});
+  this.messages.push({
+    'message': message,
+    'font': font
+  });
 }
 
 /*---------------------------------------------------------
@@ -710,82 +831,91 @@ Enemy.prototype.update = function (dt) {
  */
 var Player = function (player, scale, offset) {
   LevelObject.call(this, player, scale,
-    'images/char-boy.png', offset);
+    game.character, offset);
   this.y = this.y - scale.y * 0.05;
   this.lives = 3;
   this.initX = this.x;
   this.initY = this.y;
   this.prevX = this.x;
   this.prevY = this.y;
-  this.speed = 6;
+  this.speed = 7;
   this.timer = 0;
+  this.keys = 0;
 
   this.status = 'standing';
-  this.movement = {'up': false, 'down': false, 'left': false, 'right': false};
+  this.movement = {
+    'up': false,
+    'down': false,
+    'left': false,
+    'right': false
+  };
 };
 Player.prototype = Object.create(LevelObject.prototype);
 Player.prototype.constructor = Player;
 
 Player.prototype.die = function (dt) {
-  this.sprite = 'images/char-boy-dead.png';
+
+  var string = insertAt(game.character, '-dead', game.character.length - 4);
+  console.log(string);
+  this.sprite = string;
   this.status = 'dead';
 }
 
 Player.prototype.update = function (dt) {
   // Not sure what to do here yet.
-  if(this.status !== 'dead') {
-    this.sprite = 'images/char-boy.png';
+  if (this.status !== 'dead') {
+    this.sprite = game.character;
     this.prevX = this.x;
     this.prevY = this.y;
-    if ( this.movement.up ) {
-      if ( this.movement.right ) {
+    if (this.movement.up) {
+      if (this.movement.right) {
         this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
-      } else if ( this.movement.left ) {
+      } else if (this.movement.left) {
         this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
       } else {
         this.y = this.y - (this.scale.x / 2) * this.speed * dt;
       }
-    } else if ( this.movement.right ) {
-      if ( this.movement.up ) {
+    } else if (this.movement.right) {
+      if (this.movement.up) {
         this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
-      } else if ( this.movement.down ) {
+      } else if (this.movement.down) {
         this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
       } else {
         this.x = this.x + (this.scale.x / 2) * this.speed * dt;
       }
-    } else if ( this.movement.down ) {
-      if ( this.movement.right ) {
+    } else if (this.movement.down) {
+      if (this.movement.right) {
         this.x = this.x + (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
-      } else if ( this.movement.left ) {
+      } else if (this.movement.left) {
         this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
       } else {
         this.y = this.y + (this.scale.x / 2) * this.speed * dt;
       }
-    } else if ( this.movement.left) {
-      if ( this.movement.down ) {
+    } else if (this.movement.left) {
+      if (this.movement.down) {
         this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y + (this.scale.x / 2 * (this.speed * dt) * 0.707);
-      } else if ( this.movement.up ) {
+      } else if (this.movement.up) {
         this.x = this.x - (this.scale.x / 2 * (this.speed * dt) * 0.707);
         this.y = this.y - (this.scale.x / 2 * (this.speed * dt) * 0.707);
       } else {
         this.x = this.x - (this.scale.x / 2) * this.speed * dt;
       }
     }
-  } else if ( this.status === 'dead' ){
+  } else if (this.status === 'dead') {
     this.timer += 1 * dt;
     //console.log(this);
-    if ( this.timer >= 1) {
+    if (this.timer >= 1) {
       console.log(this.timer);
       this.timer = 0;
 
-      if(this.lives <= 0) {
+      if (this.lives <= 0) {
         game.menu = new GameOverMenu();
         globalState = 'gameOver';
         this.status = 'standing';
@@ -801,7 +931,6 @@ Player.prototype.update = function (dt) {
       }
     }
   }
-
 };
 
 Player.prototype.keyDown = function (key) {
@@ -814,10 +943,13 @@ Player.prototype.keyDown = function (key) {
 
 Player.prototype.keyUp = function (key) {
   this.movement[key] = false;
-  if( this.status !== 'dead') {
+  if (this.status !== 'dead') {
     this.status = 'standing';
   }
-
+  if(key === 'escape'){
+    globalState = 'pause';
+    game.menu = new PauseMenu();
+  }
 };
 
 /*---------------------------------------------------------
@@ -949,6 +1081,125 @@ var levels = {
       'total': 5
     },
     'helpText': 'Collet all gems and reach the goal!'
+  }, {
+    'number': 3,
+    'mapSize': {
+      'rows': 10,
+      'cols': 10
+    },
+    'map': [
+      1, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+      2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      2, 0, 0, 1, 2, 2, 2, 1, 1, 2,
+      2, 0, 0, 0, 0, 1, 0, 1, 1, 2,
+      2, 0, 0, 0, 0, 0, 0, 0, 2, 2,
+      2, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+      0, 0, 0, 0, 0, 0, 0, 3, 2, 2,
+      0, 0, 0, 0, 0, 2, 3, 3, 2, 3,
+      0, 0, 0, 0, 2, 2, 2, 2, 2, 3,
+      0, 0, 0, 0, 2, 3, 3, 2, 2, 2
+    ],
+    'items': [
+      2, 1, 1, 1, 1, 1, 1, 1, 1, 2,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 2, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0, 2, 1, 1, 0, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0, 0, 0, 0, 2, 1, 1, 0, 0, 7,
+    ],
+    'enemies': [{
+      'type': 'red-bug',
+      'speed': 20,
+      'x': 3,
+      'y': 2,
+      'path': [{
+        'x': 3,
+        'y': 2
+      }, {
+        'x': 9,
+        'y': 2
+      }]
+    }, {
+      'type': 'red-bug',
+      'speed': 9,
+      'x': 4,
+      'y': 8,
+      'path': [{
+        'x': 4,
+        'y': 8
+      }, {
+        'x': 8,
+        'y': 8
+      }, {
+        'x': 8,
+        'y': 6
+      }, {
+        'x': 8,
+        'y': 8
+      }],
+    }],
+    'player': {
+      'x': 0,
+      'y': 5
+    },
+    'completed': 0,
+    'gems': {
+      'collected': 0,
+      'total': 5
+    },
+    'helpText': 'Collet all gems and reach the goal!'
+  }, {
+    'number': 4,
+    'mapSize': {
+      'rows': 7,
+      'cols': 7
+    },
+    'map': [
+      1, 1, 3, 3, 3, 1, 1,
+      1, 1, 1, 1, 1, 1, 1,
+      3, 1, 3, 3, 1, 3, 3,
+      1, 1, 3, 1, 1, 3, 1,
+      1, 1, 3, 1, 1, 1, 1,
+      3, 3, 3, 3, 3, 3, 1,
+      3, 3, 1, 1, 1, 1, 1
+
+    ],
+    'items': [
+      0, 0, 1, 1, 1, 2, 2,
+      0, 0, 0, 0, 0, 0, 0,
+      1, 4, 1, 1, 0, 1, 1,
+      7, 0, 1, 0, 0, 1, 2,
+      0, 0, 1, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 0,
+      1, 1, 3, 0, 0, 0, 0
+    ],
+    'enemies': [{
+      'type': 'red-bug',
+      'speed': 5,
+      'x': 3,
+      'y': 4,
+      'path': [{
+        'x': 3,
+        'y': 4
+      }, {
+        'x': 6,
+        'y': 4
+      }]
+    }],
+    'player': {
+      'x': 0,
+      'y': 0
+    },
+    'completed': 0,
+    'gems': {
+      'collected': 0,
+      'total': 3
+    },
+    'helpText': 'Open the gate and reach the goal!'
   }]
 };
 
@@ -967,7 +1218,10 @@ var Level = function (number) {
   this.mapSize = level.mapSize;
   this.scale = this.setScale();
   this.completed = level.completed;
-  this.leftCorner = {'x': 0, 'y': 0};
+  this.leftCorner = {
+    'x': 0,
+    'y': 0
+  };
 
   var offsetY = 0;
   var offsetX = 0;
@@ -1022,12 +1276,19 @@ var Level = function (number) {
 
   this.items = level.items.map(function (item, index) {
     var sprite = '';
+    var offset = {'x': 0, 'y': 0};
     switch (item) {
     case 1:
       sprite = 'images/Rock.png';
       break;
     case 2:
       sprite = 'images/gem-blue.png';
+      break;
+    case 3:
+      sprite = 'images/Key.png';
+      break;
+    case 4:
+      sprite = 'images/gate-closed.png';
       break;
     case 7:
       sprite = 'images/Selector.png'
@@ -1094,7 +1355,8 @@ document.addEventListener('keydown', function (e) {
     39: 'right',
     40: 'down',
     49: '1',
-    50: '2'
+    50: '2',
+    27: 'escape'
   };
   switch (globalState) {
   case 'run':
@@ -1118,11 +1380,13 @@ document.addEventListener('keyup', function (e) {
     39: 'right',
     40: 'down',
     49: '1',
-    50: '2'
+    50: '2',
+    27: 'escape'
   };
+  console.log(e);
   switch (globalState) {
   case 'run':
-      game.level.player.keyUp(allowedKeys[e.keyCode]);
+    game.level.player.keyUp(allowedKeys[e.keyCode]);
     break;
   case 'startMenu':
     //do something
@@ -1137,8 +1401,36 @@ function scale(value) {
 }
 
 document.addEventListener('mousedown', function (e) {
+  //console.log(e);
   switch (globalState) {
+  case 'run':
+    game.menu.menuObj.forEach(function (box) {
+      if (e.layerX < box.x + box.width && e.layerX > box.x) {
+        if (e.layerY < box.y + box.height && e.layerY > box.y) {
+          game.menu = new PauseMenu(game.level);
+          globalState = 'pause';
+        }
+      }
+    });
+    break;
   case 'startMenu':
+    game.menu.charList.forEach(function (box) {
+      if (e.layerX < box.leftCorner.x + box.width && e.layerX > box.leftCorner.x) {
+        if (e.layerY < box.leftCorner.y + box.height && e.layerY > box.leftCorner.y) {
+          game.character = box.image;
+          //game.menu.charList.collected = true;
+          console.log(game.character);
+          game.menu.charList.forEach(function (boxtest) {
+            boxtest.completed = false;
+            //console.log(boxtest, 'button clicked')
+
+          }, this);
+          box.completed = true;
+
+        }
+      }
+    }, this);
+
     game.menu.list.forEach(function (box) {
       if (e.layerX < box.leftCorner.x + box.width && e.layerX > box.leftCorner.x) {
         if (e.layerY < box.leftCorner.y + box.height && e.layerY > box.leftCorner.y) {
@@ -1148,11 +1440,13 @@ document.addEventListener('mousedown', function (e) {
     });
     break;
   case 'done':
+  case 'pause':
+  case 'gameOver':
     console.log(game);
     game.menu.menuObj.forEach(function (box) {
       if (box.type === 'button') {
         if (e.layerX < (box.x - (box.width / 2)) + box.width && e.layerX > box.x - box.width / 2) {
-          if (e.layerY < (box.y - box.height * 0.2) + box.height && e.layerY > box.y - box.height * 0.2) {
+          if (e.layerY < (box.y - box.height * 0.2) + box.height && e.layerY > box.y - box.height * 0.3) {
             if (box.text === 'Restart') {
               game.menu.levelButtonClicked(game.level.levelNumber);
             } else if (box.text === 'Next') {
@@ -1162,26 +1456,12 @@ document.addEventListener('mousedown', function (e) {
               } else {
                 game.menu.levelButtonClicked(1);
               }
-            }
-            if (box.text === 'Back') {
+            }else if (box.text === 'Back') {
               game.menu = new StartMenu();
               globalState = 'startMenu';
-            }
-          }
-        }
-      }
-    });
-    break;
-  case 'gameOver':
-    game.menu.menuObj.forEach(function (box) {
-      if (box.type === 'button') {
-        if (e.layerX < (box.x - (box.width / 2)) + box.width && e.layerX > box.x - box.width / 2) {
-          if (e.layerY < (box.y - box.height * 0.2) + box.height && e.layerY > box.y - box.height * 0.2) {
-            if (box.text === 'Restart') {
-              game.menu.levelButtonClicked(game.level.levelNumber);
-            } else if (box.text === 'Back') {
-              game.menu = new StartMenu();
-              globalState = 'startMenu';
+            }else if (box.text === 'Resume') {
+              globalState = 'run';
+              game.level = game.menu.level;
             }
           }
         }
@@ -1190,3 +1470,7 @@ document.addEventListener('mousedown', function (e) {
     break;
   }
 });
+
+function insertAt (obj, string, location) {
+  return obj.substr(0, location) + string + obj.substr(location);
+}

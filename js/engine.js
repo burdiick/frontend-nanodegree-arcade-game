@@ -63,64 +63,86 @@ var Engine = (function (global) {
 
   function checkCollisions() {
     console.log();
-    //console.log(game.level.offset.x);
-    if ( game.level.player.x + game.level.player.scale.x > game.level.map[game.level.mapSize.cols].scale.x * game.level.mapSize.cols) {
+    console.log(game.level.offset.x);
+    if (game.level.player.x + game.level.scale.x > game.level.map[game.level.mapSize.cols].scale.x * game.level.mapSize.cols) {
+
       game.level.player.x = game.level.player.prevX;
-    }else if ( game.level.player.x < 0) {
+    } else if (game.level.player.x < 0) {
+
       game.level.player.x = game.level.player.prevX;
     }
-    if ( game.level.player.y + (game.level.player.scale.x * 1.15) > game.level.map[game.level.mapSize.cols * game.level.mapSize.rows - 1].scale.x * (game.level.mapSize.rows - 1)) {
+
+    if (game.level.player.y + (game.level.scale.x * 1.15) > game.level.map[game.level.mapSize.cols * game.level.mapSize.rows - 1].scale.x * (game.level.mapSize.rows - 1) + game.level.offset.y) {
+
       game.level.player.y = game.level.player.prevY;
-    }else if ( game.level.player.y + (game.level.player.scale.x * 0.15) < 0) {
+
+    } else if (game.level.player.y + (game.level.player.scale.x * 0.15) < 0) {
+
       game.level.player.y = game.level.player.prevY;
     }
+
     game.level.enemies.forEach(function (enemy) {
       if (game.level.player.x + (enemy.scale.x * 0.7) < enemy.x + enemy.scale.x && game.level.player.x + (enemy.scale.x * 0.7) > enemy.x) {
         if (game.level.player.y + (enemy.scale.x * 0.7) < enemy.y + enemy.scale.x && game.level.player.y + (enemy.scale.x * 0.7) > enemy.y) {
+          if (game.level.player.status !== 'dead') {
 
-          //console.log("successfull colliision!");
-          // TODO REPLACE WITH FUNCTION
-          if(game.level.player.status !== 'dead') {
             console.log(game.level.player.status);
             game.level.player.lives--;
             game.level.player.die();
             game.menu.addMessage('BUMMER!', 'h0-red');
-            console.log(game.level.player.status);
+            //console.log(game.level.player.status);
           }
         }
       }
     });
-    game.level.map.some( function (block) {
-      if(!block.walkable) {
-        if (game.level.player.x + (block.scale.x * 0.5) < block.x + block.scale.x && game.level.player.x + (block.scale.x * 0.5) > block.x) {
-          if (game.level.player.y + (block.scale.x * 0.8) < block.y + block.scale.x && game.level.player.y + (block.scale.x * 0.8) > block.y) {
-            if(game.level.player.prevX != game.level.player.x) {
+    game.level.map.some(function (block) {
+      if (!block.walkable) {
+        if (game.level.player.x + (block.scale.x * 0.7) < block.x + block.scale.x && game.level.player.x + (block.scale.x * 0.7) > block.x) {
+          if (game.level.player.y + (block.scale.x * 0.7) < block.y + block.scale.x - scale(50) && game.level.player.y + (block.scale.x * 0.7) > block.y) {
+            if (game.level.player.prevX != game.level.player.x) {
+
               game.level.player.x = game.level.player.prevX;
             }
-            if (game.level.player.prevY != game.level.player.y){
+            if (game.level.player.prevY != game.level.player.y) {
               game.level.player.y = game.level.player.prevY;
             }
           }
         }
       }
     });
-    game.level.items.some( function (item) {
-      if(item.sprite != ''){
+    game.level.items.some(function (item) {
+      if (item.sprite != '') {
         if (game.level.player.x + (item.scale.x * 0.7) < item.x + item.scale.x && game.level.player.x + (item.scale.x * 0.7) > item.x) {
           if (game.level.player.y + (item.scale.x * 0.7) < item.y + item.scale.x && game.level.player.y + (item.scale.x * 0.7) > item.y) {
             // TODO REPLACE WITH FUNCTION
             if (item.item == 2) {
               item.sprite = '';
               game.level.gems.collected++;
-              console.log(game.level.gems.collected, game.level.gems.total);
               game.menu.addMessage(game.level.gems.collected + ' / ' + game.level.gems.total, 'h0');
             }
+            if (item.item == 3) {
+              item.sprite = '';
+              game.level.player.keys++;
+            }
+            if (item.item == 4) {
+              if (game.level.player.keys > 0) {
+                //game.level.player.keys--;
+                item.sprite = 'images/gate-open.png';
 
+              } else {
+                if (game.level.player.prevX != game.level.player.x) {
+
+                  game.level.player.x = game.level.player.prevX;
+                }
+                if (game.level.player.prevY != game.level.player.y) {
+                  game.level.player.y = game.level.player.prevY;
+                }
+              }
+            }
             if (item.item == 7) {
-              if(game.level.gems.collected >= game.level.gems.total) {
+              if (game.level.gems.collected >= game.level.gems.total) {
                 game.level.gems.collected = 0;
                 globalState = 'done';
-                console.log(game.level, levels.level[game.level.levelNumber]);
                 levels.level[game.level.levelNumber - 1].completed = 1;
                 game.menu = new DoneMenu();
                 return true;
@@ -134,21 +156,21 @@ var Engine = (function (global) {
 
   function updateEntities(dt) {
     switch (globalState) {
-      case 'run':
-        game.level.enemies.forEach(function (enemy) {
-          enemy.update(dt);
-        });
-        game.level.player.update(dt);
-        if (globalState === 'run') {
-          game.menu.update(game.level, dt);
-          checkCollisions();
-        }
+    case 'run':
+      game.level.enemies.forEach(function (enemy) {
+        enemy.update(dt);
+      });
+      game.level.player.update(dt);
+      if (globalState === 'run') {
+        game.menu.update(game.level, dt);
+        checkCollisions();
+      }
 
 
       break;
-      case 'menu':
+    case 'menu':
       break;
-      default:
+    default:
     }
 
   }
@@ -168,6 +190,10 @@ var Engine = (function (global) {
       break;
     case 'gameOver':
       game.menu.renderGameOverMenu();
+      break;
+    case 'pause':
+      game.menu.renderPauseMenu();
+      break;
     default:
     }
   }
@@ -193,12 +219,25 @@ var Engine = (function (global) {
     'images/grass-block.png',
     'images/enemy-bug.png',
     'images/char-boy.png',
+    'images/char-cat-girl.png',
+    'images/char-horn-girl.png',
+    'images/char-pink-girl.png',
+    'images/char-princess-girl.png',
     'images/Selector.png',
     'images/Star.png',
     'images/gem-blue.png',
     'images/Rock.png',
     'images/background-one.jpg',
-    'images/char-boy-dead.png'
+    'images/char-boy-dead.png',
+    'images/char-cat-girl-dead.png',
+    'images/char-horn-girl-dead.png',
+    'images/char-pink-girl-dead.png',
+    'images/char-princess-girl-dead.png',
+    'images/pause-button.png',
+    'images/button.png',
+    'images/Key.png',
+    'images/gate-closed.png',
+    'images/gate-open.png'
   ]);
   Resources.onReady(init);
 

@@ -1,0 +1,221 @@
+{
+  "start": [{ 
+    "type": "text",
+    "text": "Title Menu",
+    "font": "h5",
+    "tl": "left",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 10,
+    "y": 10
+  }, {
+    "type": "text",
+    "text": "Chipper's Challenge",
+    "font": "h1",
+    "tl": "center",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 300,
+    "y": 100
+  }, {
+    "type": "text",
+    "text": "Levels",
+    "font": "h2",
+    "tl": "center",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 300,
+    "y": 150
+  }, {
+    "type": "levelList",
+    "text": "",
+    "font": "h3",
+    "tl": "center",
+    "bl": "center",
+    "sdw": "black",
+    "bg": false,
+    "x": 100,
+    "y": 200,
+    "width": 400,
+    "height": 400,
+    "itemsWide": 4,
+    "itemsTall": 4,
+    "image": "images/Star.png"
+  }, {
+    "type": "charList",
+    "text": "",
+    "font": "h3",
+    "tl": "center",
+    "bl": "center",
+    "sdw": "black",
+    "bg": false,
+    "x": 50,
+    "y": 500,
+    "width": 500,
+    "height": 100,
+    "itemsWide": 5,
+    "itemsTall": 1,
+    "image": [
+      "images/char-boy.png",
+      "images/char-cat-girl.png",
+      "images/char-horn-girl.png",
+      "images/char-pink-girl.png",
+      "images/char-princess-girl.png"
+    ]
+  }],
+  "hud": [{
+    "type": "text",
+    "label": "Level: ",
+    "text": "level",
+    "font": "h1",
+    "tl": "left",
+    "bl": "bottom",
+    "sdw": "black",
+    "bg": true,
+    "x": 10,
+    "y": 50
+  }, {
+    "type": "text",
+    "label": "Lives: ",
+    "text": "lives",
+    "font": "h1",
+    "tl": "left",
+    "bl": "bottom",
+    "sdw": "black",
+    "bg": true,
+    "x": 10,
+    "y": 100
+  }, {
+    "type": "text",
+    "label": "Gems: ",
+    "text": "gems",
+    "font": "h1",
+    "tl": "left",
+    "bl": "bottom",
+    "sdw": "black",
+    "bg": true,
+    "x": 10,
+    "y": 150
+  }, {
+    "type": "text",
+    "label": "Goal: ",
+    "text": "goal",
+    "font": "h4",
+    "tl": "left",
+    "bl": "bottom",
+    "sdw": "black",
+    "bg": true,
+    "x": 10,
+    "y": 550
+  }],
+  "done": [{
+    "type": "text",
+    "text": "Done Menu",
+    "font": "h5",
+    "tl": "left",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 10,
+    "y": 10
+  }, {
+    "type": "text",
+    "text": "Level Completed!",
+    "font": "h1",
+    "tl": "center",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 300,
+    "y": 100
+  }, {
+    "type": "button",
+    "text": "Restart",
+    "font": "h2",
+    "tl": "center",
+    "bl": "center",
+    "sdw": "black",
+    "x": 200,
+    "y": 300,
+    "width": 130,
+    "height": 60
+  }, {
+    "type": "button",
+    "text": "Next",
+    "font": "h2",
+    "tl": "center",
+    "bl": "center",
+    "sdw": "black",
+    "x": 400,
+    "y": 300,
+    "width": 130,
+    "height": 60
+  }, {
+    "type": "button",
+    "text": "Back",
+    "font": "h2",
+    "tl": "center",
+    "bl": "center",
+    "sdw": "black",
+    "x": 300,
+    "y": 420,
+    "width": 130,
+    "height": 60
+  }],
+  "gameOver": [{
+    "type": "text",
+    "text": "Game Over Menu",
+    "font": "h5",
+    "tl": "left",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 10,
+    "y": 10
+  }, {
+    "type": "text",
+    "text": "Game Over",
+    "font": "h1",
+    "tl": "center",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 300,
+    "y": 100
+  }, {
+    "type": "text",
+    "text": "Oh No!",
+    "font": "h2",
+    "tl": "center",
+    "bl": "top",
+    "sdw": "black",
+    "bg": false,
+    "x": 300,
+    "y": 160
+  }, {
+    "type": "button",
+    "text": "Restart",
+    "font": "h2",
+    "tl": "center",
+    "bl": "center",
+    "sdw": "black",
+    "x": 200,
+    "y": 350,
+    "width": 130,
+    "height": 60
+  }, {
+    "type": "button",
+    "text": "Back",
+    "font": "h2",
+    "tl": "center",
+    "bl": "center",
+    "sdw": "black",
+    "x": 400,
+    "y": 350,
+    "width": 130,
+    "height": 60
+  }]
+}
