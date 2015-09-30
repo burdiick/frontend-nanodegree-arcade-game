@@ -969,7 +969,7 @@ var levels = {
   'level': [{
     'number': 1, // Level number
     'mapSize': { // Size of map in squares
-      'rows': 8,
+      'rows': 6,
       'cols': 5
     },
     'map': [ // Array holding map layout.
@@ -977,8 +977,6 @@ var levels = {
       3, 3, 1, 3, 3,
       1, 2, 2, 1, 2,
       3, 3, 2, 3, 3,
-      1, 1, 2, 2, 1,
-      1, 1, 2, 2, 1,
       1, 1, 2, 2, 1,
       1, 1, 2, 2, 1
     ],
@@ -1236,17 +1234,17 @@ var Level = function (number) {
     offsetX = (((MAP_WIDTH - (MAP_HEIGHT / this.mapSize.rows) * this.mapSize.cols)) / 2) + ((CANVAS_WIDTH - MAP_WIDTH) / 2);
     offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2;
     this.width = MAP_HEIGHT / this.mapSize.rows * this.mapSize.cols;
-    this.height = MAP_HEIGHT - this.scale.y;
+    this.height = MAP_HEIGHT - (this.scale.y * 0.69);
   } else if (this.mapSize.cols > this.mapSize.rows) {
     offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
     offsetY = (((MAP_HEIGHT - (MAP_WIDTH / this.mapSize.cols) * this.mapSize.rows)) / 2) + ((CANVAS_HEIGHT - MAP_HEIGHT) / 2);
     this.width = MAP_WIDTH;
-    this.height = (MAP_WIDTH / this.mapSize.cols * this.mapSize.rows) - (this.scale.x + scale(20));
+    this.height = (MAP_WIDTH / this.mapSize.cols * this.mapSize.rows) - (this.scale.y * 0.83);
   } else {
     offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
-    offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2 - (this.scale.x * 0.5);
+    offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2;
     this.width = MAP_WIDTH;
-    this.height = MAP_HEIGHT - (this.scale.y + scale(20));
+    this.height = MAP_HEIGHT - (this.mapSize.cols * (this.scale.y * 0.12));
   }
   this.offset = {
     'x': offsetX,
