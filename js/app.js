@@ -5,6 +5,8 @@ var SCALE_WIDTH = 600;
 
 var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 600;
+var MAP_WIDTH = CANVAS_WIDTH * 0.9;
+var MAP_HEIGHT = CANVAS_HEIGHT * 0.9;
 var globalState = 'startMenu';
 
 /*---------------------------------------------------------
@@ -96,7 +98,7 @@ var menus = {
     'bl': 'bottom',
     'sdw': 'black',
     'bg': true,
-    'x': 10,
+    'x': 20,
     'y': 35
   }, {
     'type': 'text',
@@ -937,6 +939,11 @@ Player.prototype.keyDown = function (key) {
   if (this.status !== 'dead') {
     this.movement[key] = true;
     this.status = 'walking';
+    if(key === '1') {
+      console.log(game.level.player.x, game.level.player.y);
+      console.log(game.level.scale.x, game.level.scale.y, 'Level Scale');
+      console.log(game.level.mapSize.rows * game.level.scale.x, 'Map height');
+    }
   }
 
 };
@@ -962,7 +969,7 @@ var levels = {
   'level': [{
     'number': 1, // Level number
     'mapSize': { // Size of map in squares
-      'rows': 6,
+      'rows': 8,
       'cols': 5
     },
     'map': [ // Array holding map layout.
@@ -970,6 +977,8 @@ var levels = {
       3, 3, 1, 3, 3,
       1, 2, 2, 1, 2,
       3, 3, 2, 3, 3,
+      1, 1, 2, 2, 1,
+      1, 1, 2, 2, 1,
       1, 1, 2, 2, 1,
       1, 1, 2, 2, 1
     ],
@@ -1094,10 +1103,10 @@ var levels = {
       2, 0, 0, 0, 0, 1, 0, 1, 1, 2,
       2, 0, 0, 0, 0, 0, 0, 0, 2, 2,
       2, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-      0, 0, 0, 0, 0, 0, 0, 3, 2, 2,
-      0, 0, 0, 0, 0, 2, 3, 3, 2, 3,
-      0, 0, 0, 0, 2, 2, 2, 2, 2, 3,
-      0, 0, 0, 0, 2, 3, 3, 2, 2, 2
+      1, 0, 0, 0, 0, 0, 0, 3, 2, 2,
+      1, 0, 0, 0, 0, 2, 3, 3, 2, 3,
+      1, 0, 0, 0, 2, 2, 2, 2, 2, 3,
+      1, 0, 0, 0, 2, 3, 3, 2, 2, 2
     ],
     'items': [
       2, 1, 1, 1, 1, 1, 1, 1, 1, 2,
@@ -1218,23 +1227,37 @@ var Level = function (number) {
   this.mapSize = level.mapSize;
   this.scale = this.setScale();
   this.completed = level.completed;
-  this.leftCorner = {
-    'x': 0,
-    'y': 0
-  };
+  this.width = 0;
+  this.height = 0;
 
   var offsetY = 0;
   var offsetX = 0;
-  if (this.mapSize.cols <= this.mapSize.rows) {
-    offsetX = (CANVAS_WIDTH - (this.mapSize.cols * this.scale.x)) / 2;
+  if (this.mapSize.cols < this.mapSize.rows) {
+    offsetX = (((MAP_WIDTH - (MAP_HEIGHT / this.mapSize.rows) * this.mapSize.cols)) / 2) + ((CANVAS_WIDTH - MAP_WIDTH) / 2);
+    offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2;
+    this.width = MAP_HEIGHT / this.mapSize.rows * this.mapSize.cols;
+    this.height = MAP_HEIGHT - this.scale.y;
+  } else if (this.mapSize.cols > this.mapSize.rows) {
+    offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
+    offsetY = (((MAP_HEIGHT - (MAP_WIDTH / this.mapSize.cols) * this.mapSize.rows)) / 2) + ((CANVAS_HEIGHT - MAP_HEIGHT) / 2);
+    this.width = MAP_WIDTH;
+    this.height = (MAP_WIDTH / this.mapSize.cols * this.mapSize.rows) - (this.scale.x + scale(20));
   } else {
-    offsetY = (CANVAS_HEIGHT - (this.mapSize.rows * this.scale.x)) / 2;
+    offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
+    offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2 - (this.scale.x * 0.5);
+    this.width = MAP_WIDTH;
+    this.height = MAP_HEIGHT - (this.scale.y + scale(20));
   }
   this.offset = {
     'x': offsetX,
     'y': offsetY
   };
 
+  console.log(this.offset);
+  this.leftCorner = {
+    'x': this.offset.x,
+    'y': this.offset.y
+  };
   this.map = level.map.map(function (obj, index) {
     var sprite = '';
     var walkable = true;
@@ -1311,15 +1334,15 @@ var Level = function (number) {
 
 // Scale all objects to fit screen
 Level.prototype.setScale = function () {
-  if ((this.mapSize.cols / this.mapSize.rows) < CANVAS_WIDTH / CANVAS_HEIGHT) {
+  if ((this.mapSize.cols / this.mapSize.rows) <= CANVAS_WIDTH / CANVAS_HEIGHT) {
     return {
-      'x': (CANVAS_HEIGHT / this.mapSize.rows),
-      'y': ((CANVAS_HEIGHT / this.mapSize.rows) * 1.59)
+      'x': (MAP_HEIGHT / this.mapSize.rows),
+      'y': ((MAP_HEIGHT / this.mapSize.rows) * 1.59)
     };
   } else {
     return {
-      'x': (CANVAS_WIDTH / this.mapSize.cols),
-      'y': ((CANVAS_WIDTH / this.mapSize.cols) * 1.59)
+      'x': (MAP_WIDTH / this.mapSize.cols),
+      'y': ((MAP_WIDTH / this.mapSize.cols) * 1.59)
     };
   }
 }
@@ -1356,7 +1379,11 @@ document.addEventListener('keydown', function (e) {
     40: 'down',
     49: '1',
     50: '2',
-    27: 'escape'
+    27: 'escape',
+    65: 'left',
+    83: 'down',
+    68: 'right',
+    87: 'up'
   };
   switch (globalState) {
   case 'run':
@@ -1381,7 +1408,11 @@ document.addEventListener('keyup', function (e) {
     40: 'down',
     49: '1',
     50: '2',
-    27: 'escape'
+    27: 'escape',
+    65: 'left',
+    83: 'down',
+    68: 'right',
+    87: 'up'
   };
   console.log(e);
   switch (globalState) {
@@ -1473,4 +1504,14 @@ document.addEventListener('mousedown', function (e) {
 
 function insertAt (obj, string, location) {
   return obj.substr(0, location) + string + obj.substr(location);
+}
+
+function stopPlayer () {
+  if (game.level.player.prevX != game.level.player.x) {
+
+    game.level.player.x = game.level.player.prevX;
+  }
+  if (game.level.player.prevY != game.level.player.y) {
+    game.level.player.y = game.level.player.prevY;
+  }
 }

@@ -58,29 +58,68 @@ var Engine = (function (global) {
 
   function update(dt) {
     updateEntities(dt);
-
   }
 
   function checkCollisions() {
     console.log();
-    console.log(game.level.offset.x);
-    if (game.level.player.x + game.level.scale.x > game.level.map[game.level.mapSize.cols].scale.x * game.level.mapSize.cols) {
 
-      game.level.player.x = game.level.player.prevX;
-    } else if (game.level.player.x < 0) {
+    // Set size of player hitbox.
+    var padding = {
+      'x': game.level.player.scale.x * 0.4,
+      'y': game.level.player.scale.x * 0.7
+    };
 
-      game.level.player.x = game.level.player.prevX;
+    // Store player corners to shorter/easier to read variables
+    var topLeft = {
+      'x': game.level.player.x + game.level.offset.x + padding.x,
+      'y': game.level.player.y + game.level.offset.y + padding.y
+    };
+    var bottomLeft = {
+      'x': game.level.player.x + game.level.offset.x  + padding.x,
+      'y': game.level.player.y + game.level.player.scale.x + game.level.offset.y
+    };
+    //console.log(bottomLeft);
+    var topRight = {
+      'x': game.level.player.x + game.level.player.scale.x + game.level.offset.x - padding.x,
+      'y': game.level.player.y + game.level.offset.y + padding.y
+    };
+    var bottomRight = {
+      'x': game.level.player.x + game.level.player.scale.x + game.level.offset.x - padding.x,
+      'y': game.level.player.y + game.level.player.scale.x + game.level.offset.y
+    };
+
+    // Set bounding box of the level
+    var level = {
+      'width': game.level.mapSize.cols * game.level.scale.x,
+      'height': game.level.mapSize.rows * (game.level.scale.x)
+    };
+
+    if (topLeft.x > game.level.offset.x && topLeft.x < game.level.offset.x + game.level.width &&
+    topLeft.y < game.level.offset.y) {
+      stopPlayer();
+    }
+    if (bottomLeft.x > game.level.offset.x && bottomLeft.x < game.level.offset.x + game.level.width && bottomLeft.y > (game.level.height + (game.level.offset.y)) ) {
+    console.log('hmmmm');
+      stopPlayer();
+    };
+
+    if (topLeft.y > game.level.offset.y && topLeft.y < game.level.offset.y + game.level.height &&
+    topLeft.x < game.level.offset.x) {
+      stopPlayer();
     }
 
-    if (game.level.player.y + (game.level.scale.x * 1.15) > game.level.map[game.level.mapSize.cols * game.level.mapSize.rows - 1].scale.x * (game.level.mapSize.rows - 1) + game.level.offset.y) {
+    if (topRight.y > game.level.offset.y && topRight.y < game.level.offset.y + game.level.height && topRight.x > game.level.offset.x + game.level.width) {
+      stopPlayer();
+    }
+/*
+    if (game.level.player.y + (game.level.player.scale.x * 1.15) > game.level.map[game.level.mapSize.cols * game.level.mapSize.rows - 1].scale.x * (game.level.mapSize.rows - 1)) {
 
       game.level.player.y = game.level.player.prevY;
-
     } else if (game.level.player.y + (game.level.player.scale.x * 0.15) < 0) {
 
       game.level.player.y = game.level.player.prevY;
-    }
-
+    };
+*/
     game.level.enemies.forEach(function (enemy) {
       if (game.level.player.x + (enemy.scale.x * 0.7) < enemy.x + enemy.scale.x && game.level.player.x + (enemy.scale.x * 0.7) > enemy.x) {
         if (game.level.player.y + (enemy.scale.x * 0.7) < enemy.y + enemy.scale.x && game.level.player.y + (enemy.scale.x * 0.7) > enemy.y) {
@@ -97,27 +136,48 @@ var Engine = (function (global) {
     });
     game.level.map.some(function (block) {
       if (!block.walkable) {
-        if (game.level.player.x + (block.scale.x * 0.7) < block.x + block.scale.x && game.level.player.x + (block.scale.x * 0.7) > block.x) {
-          if (game.level.player.y + (block.scale.x * 0.7) < block.y + block.scale.x - scale(50) && game.level.player.y + (block.scale.x * 0.7) > block.y) {
-            if (game.level.player.prevX != game.level.player.x) {
-
-              game.level.player.x = game.level.player.prevX;
-            }
-            if (game.level.player.prevY != game.level.player.y) {
-              game.level.player.y = game.level.player.prevY;
-            }
-          }
+        var blockTopLeft = {
+          'x': block.x + game.level.offset.x,
+          'y': block.y + game.level.offset.y
+        }
+        var blockBottomLeft = {
+          'x': block.x + game.level.offset.x,
+          'y': block.y + block.scale.x + game.level.offset.y
+        }
+        var blockTopRight = {
+          'x': block.x + block.scale.x + game.level.offset.x,
+          'y': block.y + game.level.offset.y
+        }
+        var blockBottomRight = {
+          'x': block.x + block.scale.x + game.level.offset.x,
+          'y': block.y + block.scale.x + game.level.offset.y
+        }
+        //console.log(topLeft, topRight, bottomLeft, bottomRight, 'Character');
+        //console.log(blockTopLeft, blockTopRight, blockBottomLeft, blockBottomRight, 'block');
+        if (topLeft.x > blockTopLeft.x && topLeft.x < blockTopRight.x &&
+        topLeft.y > blockTopLeft.y && topLeft.y < blockBottomLeft.y) {
+          stopPlayer();
+        } else if (topRight.x > blockTopLeft.x && topRight.x < blockTopRight.x &&
+        topRight.y > blockTopLeft.y && topRight.y < blockBottomLeft.y) {
+          stopPlayer();
+        } else if (bottomRight.x > blockBottomLeft.x && bottomRight.x < blockBottomRight.x &&
+        bottomRight.y > blockTopLeft.y && bottomRight.y < blockBottomLeft.y) {
+          stopPlayer();
+        } else if (bottomLeft.x > blockTopLeft.x && bottomLeft.x < blockTopRight.x &&
+        bottomLeft.y > blockTopLeft.y && bottomLeft.y < blockBottomLeft.y) {
+          stopPlayer();
         }
       }
     });
     game.level.items.some(function (item) {
       if (item.sprite != '') {
-        if (game.level.player.x + (item.scale.x * 0.7) < item.x + item.scale.x && game.level.player.x + (item.scale.x * 0.7) > item.x) {
-          if (game.level.player.y + (item.scale.x * 0.7) < item.y + item.scale.x && game.level.player.y + (item.scale.x * 0.7) > item.y) {
+        if (game.level.player.x + (item.scale.x * 0.5) < item.x + item.scale.x && game.level.player.x + (item.scale.x * 0.5) > item.x) {
+          if (game.level.player.y + (item.scale.x * 0.5) < item.y + item.scale.x && game.level.player.y + (item.scale.x * 0.5) > item.y) {
             // TODO REPLACE WITH FUNCTION
             if (item.item == 2) {
               item.sprite = '';
               game.level.gems.collected++;
+              //console.log(game.level.gems.collected, game.level.gems.total);
               game.menu.addMessage(game.level.gems.collected + ' / ' + game.level.gems.total, 'h0');
             }
             if (item.item == 3) {
@@ -143,6 +203,7 @@ var Engine = (function (global) {
               if (game.level.gems.collected >= game.level.gems.total) {
                 game.level.gems.collected = 0;
                 globalState = 'done';
+                //console.log(game.level, levels.level[game.level.levelNumber]);
                 levels.level[game.level.levelNumber - 1].completed = 1;
                 game.menu = new DoneMenu();
                 return true;
@@ -208,6 +269,7 @@ var Engine = (function (global) {
   function reset() {
 
   }
+
 
   /* Go ahead and load all of the images we know we're going to need to
    * draw our game level. Then set init as the callback method, so that when
