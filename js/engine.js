@@ -66,7 +66,7 @@ var Engine = (function (global) {
     // Set size of player hitbox.
     var padding = {
       'x': game.level.player.scale.x * 0.4,
-      'y': game.level.player.scale.x * 0.7
+      'y': game.level.player.scale.x * 0.9
     };
 
     // Store player corners to shorter/easier to read variables
@@ -76,7 +76,7 @@ var Engine = (function (global) {
     };
     var bottomLeft = {
       'x': game.level.player.x + game.level.offset.x  + padding.x,
-      'y': game.level.player.y + game.level.player.scale.x + game.level.offset.y
+      'y': game.level.player.y + game.level.player.scale.x + game.level.offset.y - scale(20)
     };
     //console.log(bottomLeft);
     var topRight = {
@@ -85,7 +85,7 @@ var Engine = (function (global) {
     };
     var bottomRight = {
       'x': game.level.player.x + game.level.player.scale.x + game.level.offset.x - padding.x,
-      'y': game.level.player.y + game.level.player.scale.x + game.level.offset.y
+      'y': game.level.player.y + game.level.player.scale.x + game.level.offset.y - scale(20)
     };
 
     // Set bounding box of the level
