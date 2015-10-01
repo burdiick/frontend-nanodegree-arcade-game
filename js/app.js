@@ -7,10 +7,10 @@ var CANVAS_HEIGHT = 600;
 
 // Does this work ok/ is this an ok practice?
 if ($(window).width < $(window).height) {
-  CANVAS_WIDTH = $(window).width() - 10;
+  CANVAS_WIDTH = $(window).width() - 20;
   CANVAS_HEIGHT = CANVAS_WIDTH;
 } {
-  CANVAS_HEIGHT = $(window).height() - 10;
+  CANVAS_HEIGHT = $(window).height() - 20;
   CANVAS_WIDTH = CANVAS_HEIGHT;
 }
 

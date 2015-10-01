@@ -11,6 +11,7 @@ var Engine = (function (global) {
     ctx = canvas.getContext('2d'),
     lastTime;
 
+
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
   doc.body.appendChild(canvas);
@@ -52,6 +53,7 @@ var Engine = (function (global) {
    */
   function init() {
     reset();
+    $('#loading').remove();
     lastTime = Date.now();
     main();
   }
