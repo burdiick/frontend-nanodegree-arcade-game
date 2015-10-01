@@ -1,11 +1,11 @@
 'use strict';
 // Set canvas size.
 // TODO set these values based on device.
-
 var SCALE_WIDTH = 600;
 var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 600;
 
+// Does this work ok/ is this an ok practice?
 if ($(window).width < $(window).height) {
   CANVAS_WIDTH = $(window).width() - 10;
   CANVAS_HEIGHT = CANVAS_WIDTH;
@@ -73,7 +73,7 @@ var menus = {
     'text': '',
     'font': 'h3',
     'tl': 'center',
-    'bl': 'center',
+    'bl': 'middle',
     'sdw': 'black',
     'bg': false,
     'x': 100,
@@ -88,7 +88,7 @@ var menus = {
     'text': '',
     'font': 'h3',
     'tl': 'center',
-    'bl': 'center',
+    'bl': 'middle',
     'sdw': 'black',
     'bg': false,
     'x': 50,
@@ -344,7 +344,7 @@ Menu.prototype.setListItems = function (original, items) {
       'sdw': original.sdw,
       'font': original.font,
       'x': x + (width * 0.5),
-      'y': y + (height * 0.55),
+      'y': y + (height * 0.5),
       'leftCorner': {
         'x': x,
         'y': y
@@ -357,22 +357,19 @@ Menu.prototype.setListItems = function (original, items) {
   }, this);
 }
 
+// Render the current menu to screen.
 Menu.prototype.render = function () {
+  // menuObj is a list of all UI objects needing to be drawn.
   this.menuObj.forEach(function (item) {
     switch (item.type) {
     case 'button':
       ctx.save();
-      //console.log(item.x, item.y, item.width, item.height);
       ctx.drawImage(Resources.get('images/button.png'), scale(item.x - (item.width / 2)), scale(item.y - (item.width * 1.2)), scale(item.width), scale(item.width * 1.5));
-      //item.x = textX;
-      //item.y = textY;
-
+      ctx.restore();
     case 'text':
       this.drawText(item);
-      ctx.restore();
       break;
     case 'icon':
-      //ctx.save();
       ctx.drawImage(Resources.get(item.image), scale(item.x), scale(item.y) - scale(item.height * 0.55), scale(item.width), scale(item.height * 1.49));
       break;
     case 'levelList':
@@ -404,12 +401,14 @@ Menu.prototype.render = function () {
   }, this);
 }
 
+// Load a new level and set game to run.
 Menu.prototype.levelButtonClicked = function (number) {
   game.level = new Level(number);
   game.menu = new UserInterface(game.level);
   globalState = 'run';
 }
 
+// draw an image for a menu item.
 Menu.prototype.drawImg = function (img) {
     ctx.save();
     //console.log(img);
@@ -424,19 +423,23 @@ Menu.prototype.drawImg = function (img) {
   }
   // Takes a menu item object and draws it's text to the screen
 Menu.prototype.drawText = function (obj) {
-  // Render background gray box
+
+  // If this text object has a label attribute, measure it.
   if (obj.label) {
     this.setFont('h2');
     var labelWidth = ctx.measureText(obj.label).width;
   }
 
+  // Measure length of text
   this.setFont(obj.font);
   var textWidth = ctx.measureText(obj.text).width;
-  //console.log(test);
+
+  // Set alignment
   ctx.save();
   ctx.textAlign = obj.tl;
   ctx.textBaseline = obj.bl
 
+  // Render background gray box
   if (obj.bg) {
     ctx.save();
     ctx.fillStyle = "#1F1F1F";
@@ -445,6 +448,7 @@ Menu.prototype.drawText = function (obj) {
     ctx.restore();
   }
 
+  // Set drop shadow if specified
   if (obj.sdw != 'transparent') {
     ctx.shadowBlur = 10;
     ctx.shadowOffsetX = 1;
@@ -454,7 +458,8 @@ Menu.prototype.drawText = function (obj) {
 
   this.setFont(obj.font);
 
-  if (obj.label) {
+  // Draw the Text
+  if (labelWidth) {
     this.setFont('h2');
     ctx.fillText(obj.label, scale(obj.x), scale(obj.y));
     this.setFont(obj.font);
@@ -514,6 +519,7 @@ Menu.prototype.setFont = function (style) {
 var StartMenu = function () {
   Menu.call(this, menus.start);
 
+  // Lists for holding special buttons
   this.list = {};
   this.charList = {};
   this.menuObj.forEach(function (item) {
@@ -551,7 +557,6 @@ var StartMenu = function () {
           'completed': selected
         };
       }, item);
-      console.log(characters);
 
       this.charList = this.setListItems(item, characters);
 
@@ -569,12 +574,15 @@ StartMenu.prototype = Object.create(Menu.prototype);
 StartMenu.prototype.constructor = StartMenu;
 
 StartMenu.prototype.startMenuRender = function () {
-  ctx.fillStyle = "#6ad8e3";
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  // Draw background, the call prototypes render()
   ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   this.render();
 }
 
+/* --------------------------------------------------------
+ * DoneMenu class. Probably could be refactored.
+ * --------------------------------------------------------
+ */
 var DoneMenu = function () {
   Menu.call(this, menus.done);
 }
@@ -582,12 +590,15 @@ DoneMenu.prototype = Object.create(Menu.prototype);
 DoneMenu.prototype.constructor = DoneMenu;
 
 DoneMenu.prototype.renderDoneMenu = function () {
-  ctx.fillStyle = "#6ad8e3";
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  // Draw background, the call prototypes render()
   ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   this.render();
 }
 
+/* --------------------------------------------------------
+ * GameOverMenu class. Probably could be refactored.
+ * --------------------------------------------------------
+ */
 var GameOverMenu = function () {
   Menu.call(this, menus.gameOver);
 }
@@ -599,6 +610,10 @@ GameOverMenu.prototype.renderGameOverMenu = function () {
   this.render();
 }
 
+/* --------------------------------------------------------
+ * PauseMenu class. Probably could be refactored.
+ * --------------------------------------------------------
+ */
 var PauseMenu = function (level) {
   Menu.call(this, menus.pause);
   this.level = level;
@@ -611,7 +626,10 @@ PauseMenu.prototype.renderPauseMenu = function () {
   this.render();
 }
 
-// Takes the current Level instance
+/* --------------------------------------------------------
+ * UserInterface class. Probably could be refactored.
+ * --------------------------------------------------------
+ */
 var UserInterface = function (level) {
   Menu.call(this, menus.hud);
   //this.items = menus.hud;
@@ -686,8 +704,7 @@ UserInterface.prototype.renderUserInterface = function () {
 }
 
 UserInterface.prototype.update = function (currentLevel, dt) {
-  // Changegame.level and goal text if game.level changes
-  //console.log(this.number, currentLevel.levelNumber);
+  // Change level and goal text if level changes
   if (this.number.text != currentLevel.levelNumber) {
     this.number.text = currentLevel.levelNumber;
     this.goal.text = currentLevel.helpText;
@@ -876,7 +893,8 @@ Player.prototype.die = function (dt) {
 }
 
 Player.prototype.update = function (dt) {
-  // Not sure what to do here yet.
+  // Move the character based on speed attribute.
+  // Calculate speed for diaginals
   if (this.status !== 'dead') {
     this.sprite = game.character;
     this.prevX = this.x;
@@ -924,7 +942,6 @@ Player.prototype.update = function (dt) {
     }
   } else if (this.status === 'dead') {
     this.timer += 1 * dt;
-    //console.log(this);
     if (this.timer >= 1) {
       console.log(this.timer);
       this.timer = 0;
@@ -947,17 +964,18 @@ Player.prototype.update = function (dt) {
   }
 };
 
+// Handle input
 Player.prototype.keyDown = function (key) {
   if (this.status !== 'dead') {
     this.movement[key] = true;
     this.status = 'walking';
+    // For debugging only
     if(key === '1') {
       console.log(game.level.player.x, game.level.player.y);
       console.log(game.level.scale.x, game.level.scale.y, 'Level Scale');
       console.log(game.level.mapSize.rows * game.level.scale.x, 'Map height');
     }
   }
-
 };
 
 Player.prototype.keyUp = function (key) {
@@ -975,6 +993,7 @@ Player.prototype.keyUp = function (key) {
  * Object used to create and storegame levels.
  * Holds the map, enemies info and player locations.
  * New levels can be added by adding to levels.level[]
+ * TODO Figure out how to put this in a seperate file.
  *---------------------------------------------------------
  */
 var levels = {
@@ -1298,7 +1317,7 @@ var levels = {
       'collected': 0,
       'total': 3
     },
-    'helpText': 'Collet all gems and reach the goal!'
+    'helpText': 'Collet the key and gems, then head for the goal!'
   }]
 };
 
@@ -1320,6 +1339,7 @@ var Level = function (number) {
   this.width = 0;
   this.height = 0;
 
+  // Center the map on the canvas and set its width and height
   var offsetY = 0;
   var offsetX = 0;
   if (this.mapSize.cols < this.mapSize.rows) {
@@ -1343,11 +1363,14 @@ var Level = function (number) {
     'y': offsetY
   };
 
-  console.log(this.offset);
+  //console.log(this.offset);
   this.leftCorner = {
     'x': this.offset.x,
     'y': this.offset.y
   };
+
+  // Load the map from the levels.level array above
+  // and build objects from it
   this.map = level.map.map(function (obj, index) {
     var sprite = '';
     var walkable = true;
@@ -1381,12 +1404,15 @@ var Level = function (number) {
     }, this.scale, sprite, this.offset, walkable);
   }, this);
 
+  // Create enemies
   this.enemies = level.enemies.map(function (enemy) {
     return new Enemy(enemy, this.scale, this.offset);
   }, this);
 
+  // Create the player
   this.player = new Player(level.player, this.scale, this.offset);
 
+  // Create other items on the board like keys and gems.
   this.items = level.items.map(function (item, index) {
     var sprite = '';
     var offset = {'x': 0, 'y': 0};
@@ -1438,14 +1464,12 @@ Level.prototype.setScale = function () {
 }
 
 Level.prototype.render = function () {
-
-  // Draw background to blue color
-  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   // Draw map to screen
   this.map.forEach(function (block) {
     block.render();
   });
 
+  // Draw items to screen
   this.items.forEach(function (item) {
     if (item.sprite != '') {
       item.render();
@@ -1517,10 +1541,13 @@ document.addEventListener('keyup', function (e) {
   }
 });
 
+// Scale number to fit screen size.
 function scale(value) {
   return (CANVAS_WIDTH / SCALE_WIDTH) * value;
 }
 
+// Event listener for mouse clicks.
+// TODO Should this be canvas.addEventListener?
 document.addEventListener('mousedown', function (e) {
   //console.log(e);
   switch (globalState) {
@@ -1536,19 +1563,15 @@ document.addEventListener('mousedown', function (e) {
     break;
   case 'startMenu':
     game.menu.charList.forEach(function (box) {
-
       if (e.layerX < scale(box.leftCorner.x) + scale(box.width) && e.layerX > scale(box.leftCorner.x)) {
         if (e.layerY < scale(box.leftCorner.y + box.height) && e.layerY > scale(box.leftCorner.y)) {
           game.character = box.image;
-          //game.menu.charList.collected = true;
-          console.log(game.character);
+          //console.log(game.character);
           game.menu.charList.forEach(function (boxtest) {
             boxtest.completed = false;
             //console.log(boxtest, 'button clicked')
-
           }, this);
           box.completed = true;
-
         }
       }
     }, this);
@@ -1593,10 +1616,14 @@ document.addEventListener('mousedown', function (e) {
   }
 });
 
+// Insert a given string into another string.
+// Used for changing file path for -dead character sprites
 function insertAt (obj, string, location) {
   return obj.substr(0, location) + string + obj.substr(location);
 }
 
+// Used to stop player from moving if it collides with an obj
+// TODO Probably should be part of Player, but, Time.
 function stopPlayer () {
   if (game.level.player.prevX != game.level.player.x) {
 
@@ -1605,12 +1632,4 @@ function stopPlayer () {
   if (game.level.player.prevY != game.level.player.y) {
     game.level.player.y = game.level.player.prevY;
   }
-}
-
-function scaleAll(obj) {
-  obj.x = scale(obj.x);
-  obj.y = scale(obj.y);
-  obj.width = scale(obj.width);
-  obj.height = scale(obj.height);
-  return obj;
 }

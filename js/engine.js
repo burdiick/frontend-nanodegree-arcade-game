@@ -94,32 +94,30 @@ var Engine = (function (global) {
       'height': game.level.mapSize.rows * (game.level.scale.x)
     };
 
+    // Check for player collisions with outside edge.
+    // TODO Still not ideal. Hacked badly, but working.
+    // Player top left corner Y Check
     if (topLeft.x > game.level.offset.x && topLeft.x < game.level.offset.x + game.level.width &&
     topLeft.y < game.level.offset.y) {
       stopPlayer();
     }
+    // Player bottom left corner Y Check
     if (bottomLeft.x > game.level.offset.x && bottomLeft.x < game.level.offset.x + game.level.width && bottomLeft.y > (game.level.height + (game.level.offset.y)) ) {
-    console.log('hmmmm');
+    //console.log('hmmmm');
       stopPlayer();
     };
-
+    // Player top left corner X check
     if (topLeft.y > game.level.offset.y && topLeft.y < game.level.offset.y + game.level.height &&
     topLeft.x < game.level.offset.x) {
       stopPlayer();
     }
-
+    // Player top right corner X check
     if (topRight.y > game.level.offset.y && topRight.y < game.level.offset.y + game.level.height && topRight.x > game.level.offset.x + game.level.width) {
       stopPlayer();
     }
-/*
-    if (game.level.player.y + (game.level.player.scale.x * 1.15) > game.level.map[game.level.mapSize.cols * game.level.mapSize.rows - 1].scale.x * (game.level.mapSize.rows - 1)) {
 
-      game.level.player.y = game.level.player.prevY;
-    } else if (game.level.player.y + (game.level.player.scale.x * 0.15) < 0) {
-
-      game.level.player.y = game.level.player.prevY;
-    };
-*/
+    // Check player collisions with enemies.
+    // TODO Refactor to same patern as level object collisions.
     game.level.enemies.forEach(function (enemy) {
       if (game.level.player.x + (enemy.scale.x * 0.7) < enemy.x + enemy.scale.x && game.level.player.x + (enemy.scale.x * 0.7) > enemy.x) {
         if (game.level.player.y + (enemy.scale.x * 0.7) < enemy.y + enemy.scale.x && game.level.player.y + (enemy.scale.x * 0.7) > enemy.y) {
@@ -134,6 +132,9 @@ var Engine = (function (global) {
         }
       }
     });
+
+    // Set variables for the corners of each block.
+    // For customization and ease of use/comprehention
     game.level.map.some(function (block) {
       if (!block.walkable) {
         var blockTopLeft = {
@@ -154,6 +155,8 @@ var Engine = (function (global) {
         }
         //console.log(topLeft, topRight, bottomLeft, bottomRight, 'Character');
         //console.log(blockTopLeft, blockTopRight, blockBottomLeft, blockBottomRight, 'block');
+
+        // Check for Player collisions with block
         if (topLeft.x > blockTopLeft.x && topLeft.x < blockTopRight.x &&
         topLeft.y > blockTopLeft.y && topLeft.y < blockBottomLeft.y) {
           stopPlayer();
@@ -169,11 +172,14 @@ var Engine = (function (global) {
         }
       }
     });
+
+    // Check for player collision with Items.
+    // Refactor to same patern as player/level object collisions
     game.level.items.some(function (item) {
+      // TODO Refactor item creation so there arent any empty items in the array.
       if (item.sprite != '') {
         if (game.level.player.x + (item.scale.x * 0.5) < item.x + item.scale.x && game.level.player.x + (item.scale.x * 0.5) > item.x) {
           if (game.level.player.y + (item.scale.x * 0.5) < item.y + item.scale.x && game.level.player.y + (item.scale.x * 0.5) > item.y) {
-            // TODO REPLACE WITH FUNCTION
             if (item.item == 2) {
               item.sprite = '';
               game.level.gems.collected++;
@@ -226,10 +232,6 @@ var Engine = (function (global) {
         game.menu.update(game.level, dt);
         checkCollisions();
       }
-
-
-      break;
-    case 'menu':
       break;
     default:
     }
