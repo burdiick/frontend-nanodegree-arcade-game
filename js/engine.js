@@ -75,7 +75,7 @@ var Engine = (function (global) {
       'y': game.level.player.y + game.level.offset.y + padding.y
     };
     var bottomLeft = {
-      'x': game.level.player.x + game.level.offset.x  + padding.x,
+      'x': game.level.player.x + game.level.offset.x + padding.x,
       'y': game.level.player.y + game.level.player.scale.x + game.level.offset.y - scale(20)
     };
     //console.log(bottomLeft);
@@ -98,17 +98,17 @@ var Engine = (function (global) {
     // TODO Still not ideal. Hacked badly, but working.
     // Player top left corner Y Check
     if (topLeft.x > game.level.offset.x && topLeft.x < game.level.offset.x + game.level.width &&
-    topLeft.y < game.level.offset.y) {
+      topLeft.y < game.level.offset.y) {
       stopPlayer();
     }
     // Player bottom left corner Y Check
-    if (bottomLeft.x > game.level.offset.x && bottomLeft.x < game.level.offset.x + game.level.width && bottomLeft.y > (game.level.height + (game.level.offset.y)) ) {
-    //console.log('hmmmm');
+    if (bottomLeft.x > game.level.offset.x && bottomLeft.x < game.level.offset.x + game.level.width && bottomLeft.y > (game.level.height + (game.level.offset.y))) {
+      //console.log('hmmmm');
       stopPlayer();
     };
     // Player top left corner X check
     if (topLeft.y > game.level.offset.y && topLeft.y < game.level.offset.y + game.level.height &&
-    topLeft.x < game.level.offset.x) {
+      topLeft.x < game.level.offset.x) {
       stopPlayer();
     }
     // Player top right corner X check
@@ -150,24 +150,24 @@ var Engine = (function (global) {
           'y': block.y + game.level.offset.y
         }
         var blockBottomRight = {
-          'x': block.x + block.scale.x + game.level.offset.x,
-          'y': block.y + block.scale.x + game.level.offset.y
-        }
-        //console.log(topLeft, topRight, bottomLeft, bottomRight, 'Character');
-        //console.log(blockTopLeft, blockTopRight, blockBottomLeft, blockBottomRight, 'block');
+            'x': block.x + block.scale.x + game.level.offset.x,
+            'y': block.y + block.scale.x + game.level.offset.y
+          }
+          //console.log(topLeft, topRight, bottomLeft, bottomRight, 'Character');
+          //console.log(blockTopLeft, blockTopRight, blockBottomLeft, blockBottomRight, 'block');
 
         // Check for Player collisions with block
         if (topLeft.x > blockTopLeft.x && topLeft.x < blockTopRight.x &&
-        topLeft.y > blockTopLeft.y && topLeft.y < blockBottomLeft.y) {
+          topLeft.y > blockTopLeft.y && topLeft.y < blockBottomLeft.y) {
           stopPlayer();
         } else if (topRight.x > blockTopLeft.x && topRight.x < blockTopRight.x &&
-        topRight.y > blockTopLeft.y && topRight.y < blockBottomLeft.y) {
+          topRight.y > blockTopLeft.y && topRight.y < blockBottomLeft.y) {
           stopPlayer();
         } else if (bottomRight.x > blockBottomLeft.x && bottomRight.x < blockBottomRight.x &&
-        bottomRight.y > blockTopLeft.y && bottomRight.y < blockBottomLeft.y) {
+          bottomRight.y > blockTopLeft.y && bottomRight.y < blockBottomLeft.y) {
           stopPlayer();
         } else if (bottomLeft.x > blockTopLeft.x && bottomLeft.x < blockTopRight.x &&
-        bottomLeft.y > blockTopLeft.y && bottomLeft.y < blockBottomLeft.y) {
+          bottomLeft.y > blockTopLeft.y && bottomLeft.y < blockBottomLeft.y) {
           stopPlayer();
         }
       }
