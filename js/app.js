@@ -1,10 +1,20 @@
 'use strict';
 // Set canvas size.
 // TODO set these values based on device.
-var SCALE_WIDTH = 600;
 
+var SCALE_WIDTH = 600;
 var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 600;
+
+if ($(window).width < $(window).height) {
+  CANVAS_WIDTH = $(window).width() - 10;
+  CANVAS_HEIGHT = CANVAS_WIDTH;
+} {
+  CANVAS_HEIGHT = $(window).height() - 10;
+  CANVAS_WIDTH = CANVAS_HEIGHT;
+}
+
+console.log(CANVAS_WIDTH, CANVAS_HEIGHT);
 var MAP_WIDTH = CANVAS_WIDTH * 0.9;
 var MAP_HEIGHT = CANVAS_HEIGHT * 0.9;
 var globalState = 'startMenu';
@@ -314,16 +324,16 @@ var Menu = function (menu) {
 Menu.prototype.setListItems = function (original, items) {
   //console.log(original, items);
   //var temp = items;
-  console.log(items, 'items');
-  console.log(original, 'original');
+  //console.log(items, 'items');
+  //console.log(original, 'original');
   return items.map(function (item, index) {
-    var width = scale(original.width) / original.itemsWide;
-    var height = scale(original.height) / original.itemsTall;
-    var x = width * (index % original.itemsWide) + scale(original.x);
-    var y = 0 + scale(original.y);
+    var width = original.width / original.itemsWide;
+    var height = original.height / original.itemsTall;
+    var x = width * (index % original.itemsWide) + original.x;
+    var y = 0 + original.y;
 
     if (index >= original.itemsWide) {
-      y = height * Math.floor(index / original.itemsTall) + scale(original.y);
+      y = (height * Math.floor(index / original.itemsTall)) + original.y;
     }
     //console.log(item, 'item');
     return {
@@ -353,16 +363,17 @@ Menu.prototype.render = function () {
     case 'button':
       ctx.save();
       //console.log(item.x, item.y, item.width, item.height);
-      ctx.drawImage(Resources.get('images/button.png'), item.x - (item.width / 2), item.y - (item.width * 1.2), item.width, item.width * 1.5);
+      ctx.drawImage(Resources.get('images/button.png'), scale(item.x - (item.width / 2)), scale(item.y - (item.width * 1.2)), scale(item.width), scale(item.width * 1.5));
       //item.x = textX;
       //item.y = textY;
-      ctx.restore();
+
     case 'text':
       this.drawText(item);
+      ctx.restore();
       break;
     case 'icon':
       //ctx.save();
-      ctx.drawImage(Resources.get(item.image), item.x, item.y - (item.height * 0.55), item.width, item.height * 1.49);
+      ctx.drawImage(Resources.get(item.image), scale(item.x), scale(item.y) - scale(item.height * 0.55), scale(item.width), scale(item.height * 1.49));
       break;
     case 'levelList':
       this.list.forEach(function (obj, index) {
@@ -382,7 +393,7 @@ Menu.prototype.render = function () {
       this.charList.forEach(function (obj, index) {
         //console.log(obj.completed);
         if (obj.completed) {
-          ctx.drawImage(Resources.get('images/Selector.png'), obj.leftCorner.x, obj.leftCorner.y, obj.width, obj.height);
+          ctx.drawImage(Resources.get('images/Selector.png'), scale(obj.leftCorner.x), scale(obj.leftCorner.y), scale(obj.width), scale(obj.height));
           this.drawImg(obj);
         } else {
           this.drawImg(obj);
@@ -408,7 +419,7 @@ Menu.prototype.drawImg = function (img) {
       ctx.shadowOffsetY = 2;
       ctx.shadowColor = img.sdw;
     }
-    ctx.drawImage(Resources.get(img.image), img.leftCorner.x, img.leftCorner.y - (img.height * 0.5), img.width, img.height * 1.59);
+    ctx.drawImage(Resources.get(img.image), scale(img.leftCorner.x), scale(img.leftCorner.y - (img.height * 0.5)), scale(img.width), scale(img.height * 1.59));
     ctx.restore();
   }
   // Takes a menu item object and draws it's text to the screen
@@ -418,6 +429,7 @@ Menu.prototype.drawText = function (obj) {
     this.setFont('h2');
     var labelWidth = ctx.measureText(obj.label).width;
   }
+
   this.setFont(obj.font);
   var textWidth = ctx.measureText(obj.text).width;
   //console.log(test);
@@ -429,7 +441,7 @@ Menu.prototype.drawText = function (obj) {
     ctx.save();
     ctx.fillStyle = "#1F1F1F";
     ctx.globalAlpha = 0.6;
-    ctx.fillRect(scale(obj.x - 10), scale(obj.y - 20), labelWidth + textWidth + scale(20), scale(20));
+    ctx.fillRect(scale(obj.x) - scale(10), scale(obj.y) - scale(20), labelWidth + textWidth + scale(20), scale(20));
     ctx.restore();
   }
 
@@ -1314,12 +1326,12 @@ var Level = function (number) {
     offsetX = (((MAP_WIDTH - (MAP_HEIGHT / this.mapSize.rows) * this.mapSize.cols)) / 2) + ((CANVAS_WIDTH - MAP_WIDTH) / 2);
     offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2;
     this.width = MAP_HEIGHT / this.mapSize.rows * this.mapSize.cols;
-    this.height = MAP_HEIGHT - (this.scale.y * 0.69);
+    this.height = MAP_HEIGHT - (this.mapSize.cols * (this.scale.y * 0.15));
   } else if (this.mapSize.cols > this.mapSize.rows) {
     offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
     offsetY = (((MAP_HEIGHT - (MAP_WIDTH / this.mapSize.cols) * this.mapSize.rows)) / 2) + ((CANVAS_HEIGHT - MAP_HEIGHT) / 2);
     this.width = MAP_WIDTH;
-    this.height = (MAP_WIDTH / this.mapSize.cols * this.mapSize.rows) - (this.scale.y * 0.83);
+    this.height = (MAP_WIDTH / this.mapSize.cols * this.mapSize.rows) - (this.mapSize.cols * (this.scale.y * 0.1));
   } else {
     offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
     offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2;
@@ -1514,8 +1526,8 @@ document.addEventListener('mousedown', function (e) {
   switch (globalState) {
   case 'run':
     game.menu.menuObj.forEach(function (box) {
-      if (e.layerX < box.x + box.width && e.layerX > box.x) {
-        if (e.layerY < box.y + box.height && e.layerY > box.y) {
+      if (e.layerX < scale(box.x + box.width) && e.layerX > scale(box.x)) {
+        if (e.layerY < scale(box.y + box.height) && e.layerY > scale(box.y)) {
           game.menu = new PauseMenu(game.level);
           globalState = 'pause';
         }
@@ -1524,8 +1536,9 @@ document.addEventListener('mousedown', function (e) {
     break;
   case 'startMenu':
     game.menu.charList.forEach(function (box) {
-      if (e.layerX < box.leftCorner.x + box.width && e.layerX > box.leftCorner.x) {
-        if (e.layerY < box.leftCorner.y + box.height && e.layerY > box.leftCorner.y) {
+
+      if (e.layerX < scale(box.leftCorner.x) + scale(box.width) && e.layerX > scale(box.leftCorner.x)) {
+        if (e.layerY < scale(box.leftCorner.y + box.height) && e.layerY > scale(box.leftCorner.y)) {
           game.character = box.image;
           //game.menu.charList.collected = true;
           console.log(game.character);
@@ -1541,8 +1554,8 @@ document.addEventListener('mousedown', function (e) {
     }, this);
 
     game.menu.list.forEach(function (box) {
-      if (e.layerX < box.leftCorner.x + box.width && e.layerX > box.leftCorner.x) {
-        if (e.layerY < box.leftCorner.y + box.height && e.layerY > box.leftCorner.y) {
+      if (e.layerX < scale(box.leftCorner.x + box.width) && e.layerX > scale(box.leftCorner.x)) {
+        if (e.layerY < scale(box.leftCorner.y + box.height) && e.layerY > scale(box.leftCorner.y)) {
           game.menu.levelButtonClicked(box.text);
         }
       }
@@ -1554,8 +1567,8 @@ document.addEventListener('mousedown', function (e) {
     console.log(game);
     game.menu.menuObj.forEach(function (box) {
       if (box.type === 'button') {
-        if (e.layerX < (box.x - (box.width / 2)) + box.width && e.layerX > box.x - box.width / 2) {
-          if (e.layerY < (box.y - box.height * 0.2) + box.height && e.layerY > box.y - box.height * 0.3) {
+        if (e.layerX < scale(box.x - (box.width / 2) + box.width) && e.layerX > scale(box.x - box.width / 2)) {
+          if (e.layerY < scale((box.y - box.height * 0.2) + box.height) && e.layerY > scale(box.y - box.height * 0.3)) {
             if (box.text === 'Restart') {
               game.menu.levelButtonClicked(game.level.levelNumber);
             } else if (box.text === 'Next') {
@@ -1592,4 +1605,12 @@ function stopPlayer () {
   if (game.level.player.prevY != game.level.player.y) {
     game.level.player.y = game.level.player.prevY;
   }
+}
+
+function scaleAll(obj) {
+  obj.x = scale(obj.x);
+  obj.y = scale(obj.y);
+  obj.width = scale(obj.width);
+  obj.height = scale(obj.height);
+  return obj;
 }
