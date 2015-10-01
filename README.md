@@ -20,7 +20,7 @@ Or by downloading the source and opening index.html in your browser.
 
 Want to add to the game on your own? You can!
 
-The main menu screen can hold up to 20 levels.
+The main menu screen can hold up to 12 levels.
 
 ### Adding A Level
 
