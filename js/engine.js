@@ -12,8 +12,8 @@ var Engine = (function (global) {
     lastTime;
 
 
-  canvas.width = CANVAS_WIDTH;
-  canvas.height = CANVAS_HEIGHT;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
   doc.body.appendChild(canvas);
 
   /* This function serves as the kickoff point for the game loop itself
@@ -63,7 +63,7 @@ var Engine = (function (global) {
   }
 
   function checkCollisions() {
-    console.log();
+    //console.log();
 
     // Set size of player hitbox.
     var padding = {
@@ -100,21 +100,21 @@ var Engine = (function (global) {
     // TODO Still not ideal. Hacked badly, but working.
     // Player top left corner Y Check
     if (topLeft.x > game.level.offset.x && topLeft.x < game.level.offset.x + game.level.width &&
-      topLeft.y < game.level.offset.y) {
+      topLeft.y < game.level.offset.y * 1.2) {
       stopPlayer();
     }
     // Player bottom left corner Y Check
     if (bottomLeft.x > game.level.offset.x && bottomLeft.x < game.level.offset.x + game.level.width && bottomLeft.y > (game.level.height + (game.level.offset.y))) {
       //console.log('hmmmm');
       stopPlayer();
-    };
+    }
     // Player top left corner X check
-    if (topLeft.y > game.level.offset.y && topLeft.y < game.level.offset.y + game.level.height &&
+    if (topLeft.y > game.level.offset.y - 100 && topLeft.y < game.level.offset.y + game.level.height + 100 &&
       topLeft.x < game.level.offset.x) {
       stopPlayer();
     }
     // Player top right corner X check
-    if (topRight.y > game.level.offset.y && topRight.y < game.level.offset.y + game.level.height && topRight.x > game.level.offset.x + game.level.width) {
+    if (topRight.y > game.level.offset.y - 100 && topRight.y < game.level.offset.y + game.level.height + 100 && topRight.x > game.level.offset.x + game.level.width) {
       stopPlayer();
     }
 
@@ -125,7 +125,7 @@ var Engine = (function (global) {
         if (game.level.player.y + (enemy.scale.x * 0.7) < enemy.y + enemy.scale.x && game.level.player.y + (enemy.scale.x * 0.7) > enemy.y) {
           if (game.level.player.status !== 'dead') {
 
-            console.log(game.level.player.status);
+            //console.log(game.level.player.status);
             game.level.player.lives--;
             game.level.player.die();
             game.menu.addMessage('BUMMER!', 'h0-red');
@@ -142,21 +142,21 @@ var Engine = (function (global) {
         var blockTopLeft = {
           'x': block.x + game.level.offset.x,
           'y': block.y + game.level.offset.y
-        }
+        };
         var blockBottomLeft = {
           'x': block.x + game.level.offset.x,
           'y': block.y + block.scale.x + game.level.offset.y
-        }
+        };
         var blockTopRight = {
           'x': block.x + block.scale.x + game.level.offset.x,
           'y': block.y + game.level.offset.y
-        }
+        };
         var blockBottomRight = {
-            'x': block.x + block.scale.x + game.level.offset.x,
-            'y': block.y + block.scale.x + game.level.offset.y
-          }
-          //console.log(topLeft, topRight, bottomLeft, bottomRight, 'Character');
-          //console.log(blockTopLeft, blockTopRight, blockBottomLeft, blockBottomRight, 'block');
+          'x': block.x + block.scale.x + game.level.offset.x,
+          'y': block.y + block.scale.x + game.level.offset.y
+        };
+        //console.log(topLeft, topRight, bottomLeft, bottomRight, 'Character');
+        //console.log(blockTopLeft, blockTopRight, blockBottomLeft, blockBottomRight, 'block');
 
         // Check for Player collisions with block
         if (topLeft.x > blockTopLeft.x && topLeft.x < blockTopRight.x &&
@@ -179,7 +179,7 @@ var Engine = (function (global) {
     // Refactor to same patern as player/level object collisions
     game.level.items.some(function (item) {
       // TODO Refactor item creation so there arent any empty items in the array.
-      if (item.sprite != '') {
+      if (item.sprite !== '') {
         if (game.level.player.x + (item.scale.x * 0.5) < item.x + item.scale.x && game.level.player.x + (item.scale.x * 0.5) > item.x) {
           if (game.level.player.y + (item.scale.x * 0.5) < item.y + item.scale.x && game.level.player.y + (item.scale.x * 0.5) > item.y) {
             if (item.item == 2) {

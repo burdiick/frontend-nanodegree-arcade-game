@@ -10,6 +10,12 @@ Move your character with the arrow keys, or ASWD.
 
 Press the escape key or on screen pause button to pause.
 
+## Running the game
+
+You can run the game by visiting http://burdiick.github.io
+
+Or by downloading the source and opening index.html in your browser.
+
 ## Modifications
 
 Want to add to the game on your own? You can!

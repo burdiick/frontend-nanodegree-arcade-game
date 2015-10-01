@@ -2,21 +2,28 @@
 // Set canvas size.
 // TODO set these values based on device.
 var SCALE_WIDTH = 600;
-var CANVAS_WIDTH = 600;
-var CANVAS_HEIGHT = 600;
+var canvasWidth = 600;
+var canvasHeight = 600;
 
 // Does this work ok/ is this an ok practice?
-if ($(window).width < $(window).height) {
-  CANVAS_WIDTH = $(window).width() - 20;
-  CANVAS_HEIGHT = CANVAS_WIDTH;
-} {
-  CANVAS_HEIGHT = $(window).height() - 20;
-  CANVAS_WIDTH = CANVAS_HEIGHT;
+var width = $(window).width();
+var height = $(window).height();
+
+//console.log(width, height);
+if (width < height) {
+  canvasWidth = width - 10;
+  canvasHeight = canvasWidth;
+  //console.log(canvasWidth, canvasHeight);
+} else {
+  canvasHeight = height - 10;
+  canvasWidth = canvasHeight;
+  //console.log(canvasWidth, canvasHeight, 'else');
 }
 
-//console.log(CANVAS_WIDTH, CANVAS_HEIGHT);
-var MAP_WIDTH = CANVAS_WIDTH * 0.9;
-var MAP_HEIGHT = CANVAS_HEIGHT * 0.9;
+
+//console.log(canvasWidth, canvasHeight);
+var MAP_WIDTH = canvasWidth * 0.9;
+var MAP_HEIGHT = canvasHeight * 0.9;
 var globalState = 'startMenu';
 
 /*---------------------------------------------------------
@@ -541,14 +548,7 @@ var StartMenu = function () {
   this.charList = {};
   this.menuObj.forEach(function (item) {
     if (item.type === 'levelList') {
-      console.log(item, 'before');
-      var temp = item;
       this.list = this.setListItems(item, levels.level);
-      if (item === temp) {
-        console.log('equal');
-      } else {
-        console.log('not equal');
-      }
 
     } else if (item.type === 'charList') {
       var chars = [
@@ -560,7 +560,7 @@ var StartMenu = function () {
       ];
 
       var characters = chars.map(function (item, index) {
-        console.log(item);
+        //console.log(item);
         var selected = 0;
         if (index === 0) {
           selected = true;
@@ -589,7 +589,7 @@ StartMenu.prototype.constructor = StartMenu;
 
 StartMenu.prototype.startMenuRender = function () {
   // Draw background, the call prototypes render()
-  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, canvasWidth, canvasHeight);
   this.render();
 };
 
@@ -606,7 +606,7 @@ DoneMenu.prototype.constructor = DoneMenu;
 
 DoneMenu.prototype.renderDoneMenu = function () {
   // Draw background, the call prototypes render()
-  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, canvasWidth, canvasHeight);
   this.render();
 };
 
@@ -622,7 +622,7 @@ GameOverMenu.prototype = Object.create(Menu.prototype);
 GameOverMenu.prototype.constructor = DoneMenu;
 
 GameOverMenu.prototype.renderGameOverMenu = function () {
-  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, canvasWidth, canvasHeight);
   this.render();
 };
 
@@ -640,7 +640,7 @@ PauseMenu.prototype = Object.create(Menu.prototype);
 PauseMenu.prototype.constructor = PauseMenu;
 
 PauseMenu.prototype.renderPauseMenu = function () {
-  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, canvasWidth, canvasHeight);
   this.render();
 };
 
@@ -694,13 +694,14 @@ UserInterface.prototype.renderUserInterface = function () {
     }
     var newMessage = {
       'text': message.message,
-      'x': (CANVAS_WIDTH / 2),
-      'y': (CANVAS_HEIGHT / 2) - (scale(50) * height),
+      'x': (canvasWidth / 2) - game.level.offset.x,
+      'y': (canvasHeight / 2) - (scale(50) * height) - game.level.offset.y,
       'sdw': 'black',
       'tl': 'center',
       'bl': 'middle',
       'font': message.font
     };
+
     ctx.save();
     if (index == 1) {
       ctx.globalAlpha = 0.9;
@@ -713,9 +714,11 @@ UserInterface.prototype.renderUserInterface = function () {
     } else if (index === 0) {
       if (this.timer < 1.5) {
         ctx.globalAlpha = 1 / (this.timer / 1);
-        message.y = message.y + ((this.timer / 2) * (MAP_HEIGHT / 3));
+        newMessage.y = newMessage.y + ((this.timer / 2) * (MAP_HEIGHT / 3));
       }
     }
+    //console.log(canvasWidth / 2);
+    //console.log(newMessage.x);
     this.drawText(newMessage);
     ctx.restore();
   }, this);
@@ -742,6 +745,7 @@ UserInterface.prototype.update = function (currentLevel, dt) {
   }
 
   // Update message timer
+  // If the timer is up, remove the oldest message and restart timer
   if (this.messages.length > 0) {
     if (this.timer >= 1.4) {
       this.timer = 0;
@@ -1031,7 +1035,7 @@ Player.prototype.keyDown = function (key) {
     this.status = 'walking';
     // For debugging only
     if (key === '1') {
-      //console.log(game.level.player.x, game.level.player.y);
+      //console.log(game.menu.messages[0]);
       //console.log(game.level.scale.x, game.level.scale.y, 'Level Scale');
       //console.log(game.level.mapSize.rows * game.level.scale.x, 'Map height');
     }
@@ -1412,21 +1416,21 @@ var Level = function (number) {
   // Center the map on the canvas and set its width and height
   var offsetY = 0;
   var offsetX = 0;
-  if (this.mapSize.cols < this.mapSize.rows) {
-    offsetX = (((MAP_WIDTH - (MAP_HEIGHT / this.mapSize.rows) * this.mapSize.cols)) / 2) + ((CANVAS_WIDTH - MAP_WIDTH) / 2);
-    offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2;
+  if (this.mapSize.cols < this.mapSize.rows) { // taller
+    offsetX = (((MAP_WIDTH - (MAP_HEIGHT / this.mapSize.rows) * this.mapSize.cols)) / 2) + ((canvasWidth - MAP_WIDTH) / 2);
+    offsetY = (canvasHeight - MAP_HEIGHT) / 2;
     this.width = MAP_HEIGHT / this.mapSize.rows * this.mapSize.cols;
+    this.height = MAP_HEIGHT - (this.mapSize.cols * (this.scale.y * 0.17));
+  } else if (this.mapSize.cols > this.mapSize.rows) { //wider
+    offsetX = (canvasWidth - MAP_WIDTH) / 2;
+    offsetY = (((MAP_HEIGHT - (MAP_WIDTH / this.mapSize.cols) * this.mapSize.rows)) / 2) + ((canvasHeight - MAP_HEIGHT) / 2);
+    this.width = MAP_WIDTH;
+    this.height = (MAP_WIDTH / this.mapSize.cols * this.mapSize.rows) - (this.mapSize.cols * (this.scale.y * 0.11));
+  } else { // square
+    offsetX = (canvasWidth - MAP_WIDTH) / 2;
+    offsetY = (canvasHeight - MAP_HEIGHT) / 2;
+    this.width = MAP_WIDTH;
     this.height = MAP_HEIGHT - (this.mapSize.cols * (this.scale.y * 0.15));
-  } else if (this.mapSize.cols > this.mapSize.rows) {
-    offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
-    offsetY = (((MAP_HEIGHT - (MAP_WIDTH / this.mapSize.cols) * this.mapSize.rows)) / 2) + ((CANVAS_HEIGHT - MAP_HEIGHT) / 2);
-    this.width = MAP_WIDTH;
-    this.height = (MAP_WIDTH / this.mapSize.cols * this.mapSize.rows) - (this.mapSize.cols * (this.scale.y * 0.1));
-  } else {
-    offsetX = (CANVAS_WIDTH - MAP_WIDTH) / 2;
-    offsetY = (CANVAS_HEIGHT - MAP_HEIGHT) / 2;
-    this.width = MAP_WIDTH;
-    this.height = MAP_HEIGHT - (this.mapSize.cols * (this.scale.y * 0.12));
   }
   this.offset = {
     'x': offsetX,
@@ -1519,7 +1523,7 @@ var Level = function (number) {
  * @description Set the scale for objects
  */
 Level.prototype.setScale = function () {
-  if ((this.mapSize.cols / this.mapSize.rows) <= CANVAS_WIDTH / CANVAS_HEIGHT) {
+  if ((this.mapSize.cols / this.mapSize.rows) <= canvasWidth / canvasHeight) {
     return {
       'x': (MAP_HEIGHT / this.mapSize.rows),
       'y': ((MAP_HEIGHT / this.mapSize.rows) * 1.59)
@@ -1533,7 +1537,7 @@ Level.prototype.setScale = function () {
 };
 
 Level.prototype.render = function () {
-  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.drawImage(Resources.get('images/background-one.jpg'), 0, 0, canvasWidth, canvasHeight);
   // Draw map to screen
   this.map.forEach(function (block) {
     block.render();
@@ -1613,7 +1617,7 @@ document.addEventListener('keyup', function (e) {
 
 // Scale number to fit screen size.
 function scale(value) {
-  return (CANVAS_WIDTH / SCALE_WIDTH) * value;
+  return (canvasWidth / SCALE_WIDTH) * value;
 }
 
 // Event listener for mouse clicks.
