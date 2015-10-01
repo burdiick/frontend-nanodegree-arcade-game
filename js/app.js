@@ -694,8 +694,8 @@ UserInterface.prototype.renderUserInterface = function () {
     }
     var newMessage = {
       'text': message.message,
-      'x': (canvasWidth / 2) - game.level.offset.x,
-      'y': (canvasHeight / 2) - (scale(50) * height) - game.level.offset.y,
+      'x': (canvasWidth / 2) - (canvasWidth - MAP_WIDTH),
+      'y': (canvasHeight / 2) - (scale(50) * height) - (canvasHeight - MAP_HEIGHT),
       'sdw': 'black',
       'tl': 'center',
       'bl': 'middle',
